@@ -1,90 +1,89 @@
-# Fluix
+# Quantix
 
-Adaptive, demand-smoothed object pooling for Roblox.
+Stats that stack exactly as intended.
 
-**[Documentation](https://vel136.github.io/Fluix/)** · **[Creator Store](https://create.roblox.com/store/asset/84852268228213/Fluix)**
+**[Documentation](https://vel136.github.io/Quantix/)** · **[Creator Store](https://create.roblox.com/store/asset/TODO/Quantix)**
 
-**Version:** V1.0.0
+**Version:** V1.1.0
 
-Fluix is a per-instance generic object pool for Roblox Luau. It tracks acquisition demand with an exponential moving average, pre-warms and gradually shrinks the pool to match real usage, and exposes hot/cold priority tiers, cross-pool borrowing, per-object TTL, and lifecycle signals — all with zero allocations on the acquire/release hot path.
+Quantix is a stat modifier library for Roblox Luau. It manages numeric and table-based stats through a typed, phase-ordered pipeline. Modifiers are sorted into phases (`SetBase → FlatAdd → AddPercent → Multiply → Override → Clamp → Lock`), evaluated deterministically, and cached until invalidated. Stats stack exactly as intended regardless of how many modifiers are active.
 
 ---
 
 ## Install
 
-Get Fluix from the **[Roblox Creator Store](https://create.roblox.com/store/asset/84852268228213/Fluix)**, drop the module into `ReplicatedStorage`, and require it:
+Get Quantix from the **[Roblox Creator Store](https://create.roblox.com/store/asset/TODO/Quantix)**, drop the module into `ReplicatedStorage`, and require it:
 
 ```lua
-local Fluix = require(ReplicatedStorage.Fluix)
+local Quantix = require(ReplicatedStorage.Quantix)
 ```
 
-No external dependencies. One require.
+Requires **Signal** (included in the package).
 
 ---
 
 ## Quick Start
 
 ```lua
-local Fluix = require(ReplicatedStorage.Fluix)
+local Quantix = require(ReplicatedStorage.Quantix)
 
-local BulletPool = Fluix.new({
-    Factory = function() return Bullet.new() end,
-    Reset   = function(b) b:Reset() end,
-    MinSize = 32,
+local stats = Quantix.new({
+    Damage  = 25,
+    Range   = 50,
+    Spread  = { Base = 1.5, ADS = 0.8 },
 })
 
--- Pre-allocate 20 objects before gameplay starts
-BulletPool:Seed(20)
+-- Nested tables are flattened to dot-path keys
+print(stats:Get("Spread.Base"))   --> 1.5
 
--- Acquire with an optional inline initialiser
-local bullet = BulletPool:Acquire(function(b)
-    b.Position = spawnPos
-    b.Velocity = direction * speed
-end)
+-- Add a modifier
+local id = stats:AddModifier({
+    Stat   = "Damage",
+    Type   = Quantix.Types.FlatAdd,
+    Value  = 10,
+    Source = Quantix.Sources.Attachment,
+})
 
--- Return when done
-BulletPool:Release(bullet)
+print(stats:Get("Damage"))   --> 35
+
+-- Remove it later
+stats:RemoveModifier(id)
+print(stats:Get("Damage"))   --> 25
 ```
 
 ---
 
-## Configuration
+## Modifier Pipeline
 
-| Field | Type | Default | Description |
-|-------|------|---------|-------------|
-| `Factory` | `() -> T` | **required** | Allocates a fresh object |
-| `Reset` | `(T) -> ()` | **required** | Clears an object before re-pooling |
-| `MinSize` | `number` | `8` | Floor the cold pool never shrinks below |
-| `MaxSize` | `number` | `256` | Hard cold-pool ceiling |
-| `Alpha` | `number` | `0.3` | EMA smoothing coefficient (0–1) |
-| `Headroom` | `number` | `2.0` | Pool target multiplier over smoothed demand |
-| `SampleWindow` | `number` | `0.5` | Demand measurement interval in seconds |
-| `PrewarmBatchSize` | `number` | `16` | Max allocations per Heartbeat tick |
-| `ShrinkGraceSeconds` | `number` | `3.0` | Surplus duration before eviction begins |
-| `IdleDisconnectWindows` | `number` | `6` | Consecutive idle windows before dormancy |
-| `HotPoolSize` | `number` | `0` | Dedicated hot sub-pool capacity (0 = off) |
-| `TTL` | `number` | `nil` | Max seconds an object may be live (nil = off) |
-| `MissRateThreshold` | `number` | `nil` | Miss rate 0–1 that triggers a warn() (nil = off) |
-| `OnOverflow` | `(T) -> ()` | `nil` | Called when the pool is full on Release |
-| `BorrowPeers` | `{ Pooler }` | `{}` | Sibling pools to borrow from on a miss |
+| Phase | Types | What it does |
+|-------|-------|--------------|
+| `SetBase` | `SetBase` | Replaces the base value (highest priority wins) |
+| `FlatAdd` | `FlatAdd`, `StackUnique` | Adds a flat amount |
+| `AddPercent` | `AddPercent` | Adds `base × (percent / 100)` |
+| `Multiply` | `Multiply` | Multiplies; supports named groups for compounding |
+| `Override` | `Override` | Replaces the result (highest priority wins) |
+| `MinOverride` | `MinOverride` | Raises the floor |
+| `MaxOverride` | `MaxOverride` | Lowers the ceiling |
+| `Clamp` | `ClampMin`, `ClampMax` | Hard min/max clamp |
+| `Lock` | `Lock` | Short-circuits everything; value is locked |
+| Behavior | `BehaviorReplace`, `BehaviorOverride`, `BehaviorDeepMerge`, `BehaviorHook`, `BehaviorExclusive` | Table-based stat merging |
 
 ---
 
 ## Signals
 
-Each pool instance exposes a `Signals` table of [VeSignal](https://vel136.github.io/VeSignal/) connections:
+Each controller exposes a `Signals` table of [Signal](https://vel136.github.io/VeSignal/) connections:
 
-| Signal | Fires with | Description |
-|--------|-----------|-------------|
-| `OnAcquire` | `obj: T` | Object left the pool |
-| `OnRelease` | `obj: T` | Object returned to the pool |
-| `OnMiss` | `obj: T` | Factory fallback used (pool was empty) |
-| `OnGrow` | `added, total` | Pool expanded |
-| `OnShrink` | `removed, total` | Pool contracted |
+| Signal | Parameters | Fires when |
+|--------|-----------|------------|
+| `OnStatChanged` | `statName, newValue, oldValue` | A stat's final value changed |
+| `OnModifierAdded` | `modifier` | A modifier was added |
+| `OnModifierRemoved` | `modifierId` | A modifier was removed |
+| `OnBatchEnd` | (none) | A `Batch` completed |
 
 ```lua
-BulletPool.Signals.OnMiss:Connect(function(obj)
-    warn("Pool miss — consider raising MinSize or Headroom")
+stats.Signals.OnStatChanged:Connect(function(statName, newValue, oldValue)
+    print(statName, oldValue, "→", newValue)
 end)
 ```
 
@@ -92,62 +91,105 @@ end)
 
 ## API
 
-**Lifecycle**
+**Query**
 
 | Method | Description |
 |--------|-------------|
-| `Fluix.new(config)` | Create a new pool |
-| `pool:Seed(n)` | Pre-allocate `n` objects |
-| `pool:Acquire(initFn?)` | Get an object, with optional inline init |
-| `pool:Release(obj)` | Return an object |
-| `pool:ReleaseAll()` | Force-return every live object |
-| `pool:Pause()` | Disconnect Heartbeat without destroying state |
-| `pool:Resume()` | Reconnect Heartbeat |
-| `pool:Drain()` | Evict all pooled objects (does not touch live) |
-| `pool:Destroy()` | Destroy the pool |
+| `Quantix.new(data)` | Create a new controller; numeric leaf values are flattened to dot-path keys |
+| `stats:Get(statName)` | Final evaluated value (cached) |
+| `stats:GetBase(statName)` | Raw base value before modifiers |
+| `stats:GetAll()` | All stats evaluated as a table |
+| `stats:GetGroup(prefix)` | All stats under `prefix.`, with prefix stripped |
 
-**Peers**
+**Modifiers**
 
 | Method | Description |
 |--------|-------------|
-| `pool:RegisterPeer(other)` | Add a sibling pool to borrow from |
-| `pool:UnregisterPeer(other)` | Remove a sibling pool |
+| `stats:AddModifier(mod)` | Add a modifier; returns its ID |
+| `stats:RemoveModifier(id)` | Remove a modifier by ID |
+| `stats:RemoveBySource(source, sourceId?)` | Remove all modifiers from a source |
+| `stats:ReplaceBySource(source, sourceId?, newMods)` | Swap source modifiers atomically |
+| `stats:ClearAll()` | Remove every active modifier |
+| `stats:SetBase(statName, value)` | Update a stat's base value |
+| `stats:RegisterBehavior(key, baseTable)` | Register a table-based behavior stat |
+| `stats:Evaluate(key, fallback)` | Evaluate a behavior stat; returns `(table, hooks)` |
 
-**Inspection (zero-allocation)**
+**Batching**
 
 | Method | Description |
 |--------|-------------|
-| `pool:GetLiveCount()` | Objects currently out |
-| `pool:GetPoolSize()` | Objects in the cold pool |
-| `pool:GetHotSize()` | Objects in the hot sub-pool |
-| `pool:GetTotalAvailable()` | Hot + cold (acquirable right now) |
-| `pool:GetDemandEMA()` | Smoothed acquisitions-per-window |
-| `pool:GetTargetSize()` | EMA-derived pre-warm target |
-| `pool:GetMissCount()` | Lifetime total pool misses |
-| `pool:IsActive()` | `true` if Heartbeat is live |
-| `pool:IsDestroyed()` | `true` if `Destroy()` has been called |
-| `pool:IsOwned(obj)` | `true` if `obj` is currently live in this pool |
-| `pool:GetStats()` | Table of all stats |
+| `stats:Batch(fn)` | Run `fn` with signals deferred until completion |
+| `stats:BeginBatch()` | Manually begin a batch |
+| `stats:EndBatch()` | End the batch and flush signals |
+
+**Modifier Query**
+
+| Method | Description |
+|--------|-------------|
+| `stats:GetModifiersForStat(statName)` | All modifiers for a stat |
+| `stats:GetModifiers()` | All active modifiers |
+| `stats:GetModifierById(id)` | Single modifier by ID |
+
+**Debug**
+
+| Method | Description |
+|--------|-------------|
+| `stats:Trace(statName)` | Full pipeline trace as a formatted string |
+| `stats:DebugDump()` | Print all stats and modifiers to console |
+| `stats:Destroy()` | Destroy the controller and disconnect signals |
 
 ---
 
-## Benchmarks
+## Source Constants
 
-Measured on Roblox server, 60 sample frames, 20 warmup frames. Throughput = acquire+release pairs per second. Round-trip latency = µs per acquire→release cycle.
+```lua
+Quantix.Sources.Attachment   -- "Attachment"
+Quantix.Sources.Ammo         -- "Ammo"
+Quantix.Sources.Perk         -- "Perk"
+Quantix.Sources.State        -- "State"
+Quantix.Sources.System       -- "System"
+Quantix.Sources.Ballistics   -- "Ballistics"
+```
 
-| Profile | Peak ops/s | RT µs | Miss% |
-|---------|-----------|-------|-------|
-| Hot(16) + cold | **2,485,800** | **0.40** | 0.0% |
-| Cold-pool only | 2,268,603 | 0.44 | 0.0% |
-| Cross-pool borrow | 1,927,674 | — | 0.0% |
-| Miss-only (factory) | 707,214 | 1.41 | 100.0% |
+---
 
-**ReleaseAll** per-object cost: ~0.37–0.49 µs/obj across ×100 to ×20,000 objects.
+## Batching Example
 
-**Heartbeat overhead**: < 0.001 ms (within noise floor).
+Wrap bulk changes in `Batch` to coalesce signals. One `OnStatChanged` fires per stat, not one per modifier:
+
+```lua
+stats:Batch(function()
+    stats:RemoveBySource(Quantix.Sources.Attachment, attachment.Id)
+    stats:AddModifier({ Stat = "Damage", Type = "FlatAdd",  Value = 8,   Source = "Attachment", SourceId = attachment.Id })
+    stats:AddModifier({ Stat = "Range",  Type = "Multiply", Value = 0.1, Source = "Attachment", SourceId = attachment.Id })
+end)
+```
+
+---
+
+## Behavior Modifiers
+
+Behavior modifiers operate on a registered table stat rather than a number:
+
+```lua
+stats:RegisterBehavior("Bullet", {
+    MaxPenetrations = 1,
+    Gravity         = 9.81,
+})
+
+stats:AddModifier({
+    Stat   = "Bullet",
+    Type   = Quantix.Types.BehaviorOverride,
+    Value  = { MaxPenetrations = 3, Gravity = 0 },
+    Source = Quantix.Sources.Ammo,
+})
+
+local behavior, hooks = stats:Evaluate("Bullet", {})
+print(behavior.MaxPenetrations)   --> 3
+```
 
 ---
 
 ## License
 
-MIT — Copyright © 2026 VeDevelopment
+MIT, Copyright 2026 VeDevelopment

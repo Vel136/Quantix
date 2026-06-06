@@ -4,13 +4,13 @@ sidebar_position: 5
 
 # Credits
 
-Fluix is built and maintained by **VeDevelopment**.
+Quantix is built and maintained by **VeDevelopment**.
 
 ---
 
 ## Author
 
-Fluix was designed and written by the VeDevelopment team. The adaptive EMA demand tracking, hot/cold priority tiers, cross-pool borrowing, per-object TTL, and lifecycle signal design are original Luau implementation work.
+Quantix was designed and written by the VeDevelopment team. The phase-ordered modifier pipeline, typed accumulator system, behavior modifier support, source-tagged bulk removal, and batched signal coalescing are original Luau implementation work.
 
 **Find us:**
 
@@ -24,13 +24,13 @@ Fluix was designed and written by the VeDevelopment team. The adaptive EMA deman
 
 ## Dependencies
 
-Fluix uses **[VeSignal](https://vel136.github.io/VeSignal/)** for its lifecycle signal system (`OnAcquire`, `OnRelease`, `OnMiss`, `OnGrow`, `OnShrink`), also developed by VeDevelopment.
+Quantix uses **[Signal](https://vel136.github.io/VeSignal/)** for its lifecycle signal system (`OnStatChanged`, `OnModifierAdded`, `OnModifierRemoved`, `OnBatchEnd`), also developed by VeDevelopment.
 
 ---
 
 ## License
 
-Fluix is released under the **MIT License**.
+Quantix is released under the **MIT License**.
 
 ```
 MIT License

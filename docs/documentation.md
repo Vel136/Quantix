@@ -3,74 +3,227 @@ sidebar_position: 2
 sidebar_label: "Overview"
 ---
 
-# Fluix
+# Quantix
 
-*Every object ready before demand arrives.*
+*Stats that stack exactly as intended.*
 
-Adaptive, demand-smoothed object pooling for Roblox.
+Deterministic, phase-ordered stat modifier system for Roblox Luau.
 
-Fluix is a per-instance generic object pool. It tracks acquisition demand with an exponential moving average, pre-warms and gradually shrinks the pool to match real usage, and exposes hot/cold priority tiers, cross-pool borrowing, per-object TTL, and lifecycle signals — all with zero allocations on the acquire/release hot path.
+Quantix is a per-instance `StatController` that manages numeric and table-based stats through a typed modifier pipeline. Modifiers are sorted into phases (SetBase, FlatAdd, AddPercent, Multiply, Override, Clamp, Lock), evaluated deterministically, and cached until invalidated. Behavior modifier types (BehaviorOverride, BehaviorDeepMerge, BehaviorHook, BehaviorExclusive, BehaviorReplace) run through the same pipeline, replacing what was previously ad-hoc merge logic.
 
 ---
 
 ## One File. One Require.
 
-Drop Fluix into `ReplicatedStorage` and require it from any script.
+Drop Quantix into `ReplicatedStorage` and require it from any script.
 
 ```lua
-local Fluix = require(ReplicatedStorage.Fluix)
+local Quantix = require(ReplicatedStorage.Quantix)
 ```
 
 ---
 
-## Basic Pool
+## Creating a StatController
 
 ```lua
-local BulletPool = Fluix.new({
-    Factory = function() return Bullet.new() end,
-    Reset   = function(b) b:Reset() end,
-    MinSize = 32,
+local stats = Quantix.new({
+    Damage  = 25,
+    Range   = 50,
+    Spread  = { Base = 1.5, ADS = 0.8 },
 })
 
-BulletPool:Seed(20)
+-- Nested tables are flattened to dot-path keys
+print(stats:Get("Spread.Base"))   --> 1.5
+print(stats:Get("Spread.ADS"))    --> 0.8
+```
 
-local bullet = BulletPool:Acquire(function(b)
-    b.Position = spawnPos
-    b.Velocity = direction * speed
-end)
+Pass an empty table if you prefer to register stats manually:
 
-BulletPool:Release(bullet)
+```lua
+local stats = Quantix.new({})
+stats:SetBase("Damage", 25)
 ```
 
 ---
 
-## Adaptive Sizing
+## Modifier Pipeline
 
-Fluix measures acquisitions-per-window using an exponential moving average (EMA). The Heartbeat pre-warms the cold pool toward `EMA × Headroom`, then gradually shrinks it when demand drops — after `ShrinkGraceSeconds` of sustained surplus.
+Modifiers are evaluated in a fixed phase order. Within a phase, each type has its own accumulation and application logic.
+
+| Phase | Types | What it does |
+|-------|-------|--------------|
+| `SetBase` | `SetBase` | Replaces the base value (highest priority wins) |
+| `FlatAdd` | `FlatAdd`, `StackUnique` | Adds a flat amount to the result |
+| `AddPercent` | `AddPercent` | Adds `base × (percent / 100)` |
+| `Multiply` | `Multiply` | Multiplies the result; supports groups |
+| `Override` | `Override` | Replaces the result (highest priority wins) |
+| `MinOverride` | `MinOverride` | Raises the floor |
+| `MaxOverride` | `MaxOverride` | Lowers the ceiling |
+| `Clamp` | `ClampMin`, `ClampMax` | Final min/max clamp |
+| `Lock` | `Lock` | Short-circuits everything; final value is locked |
+| `BehaviorReplace` | `BehaviorReplace` | Sets a priority cutoff for behavior merging |
+| `BehaviorOverride` | `BehaviorOverride` | Shallow-merges keys onto the behavior table |
+| `BehaviorDeepMerge` | `BehaviorDeepMerge` | Recursively merges nested tables |
+| `BehaviorHook` | `BehaviorHook` | Collects hook functions per event name |
+| `BehaviorExclusive` | `BehaviorExclusive` | Tag-based winner-takes-all override |
+
+---
+
+## Numeric Modifier Types
+
+### FlatAdd
+
+Adds a flat value after the base phase. All `FlatAdd` modifiers are summed.
 
 ```lua
-local Pool = Fluix.new({
-    Factory            = function() return Part.new() end,
-    Reset              = function(p) p.Parent = nil end,
-    MinSize            = 16,
-    Headroom           = 3.0,       -- target = EMA × 3
-    ShrinkGraceSeconds = 5.0,       -- wait 5s before evicting surplus
-    Alpha              = 0.2,       -- slower EMA smoothing
+stats:AddModifier({ Stat = "Damage", Type = "FlatAdd", Value = 10, Source = "Attachment" })
+```
+
+### AddPercent
+
+Adds `base × (percent / 100)`. All `AddPercent` modifiers are summed before applying.
+
+```lua
+-- +15% of base damage
+stats:AddModifier({ Stat = "Damage", Type = "AddPercent", Value = 15, Source = "Perk" })
+```
+
+### Multiply
+
+Multiplies the post-additive result. Ungrouped multipliers are summed then applied as `1 + sum`. Grouped multipliers multiply together per group.
+
+```lua
+-- Ungrouped: value is additive with other ungrouped Multiply mods
+stats:AddModifier({ Stat = "Damage", Type = "Multiply", Value = 0.2, Source = "Perk" })
+
+-- Grouped: multiplied together within the group
+stats:AddModifier({ Stat = "Damage", Type = "Multiply", Value = 1.1, MultGroup = "WeaponBonus", Source = "State" })
+```
+
+### Override
+
+Replaces the result entirely. Highest `Priority` wins when multiple Override mods exist.
+
+```lua
+stats:AddModifier({ Stat = "FireRate", Type = "Override", Value = 600, Priority = 10, Source = "State" })
+```
+
+### SetBase
+
+Replaces the base value before any additive phases. Highest priority wins.
+
+```lua
+stats:AddModifier({ Stat = "Damage", Type = "SetBase", Value = 50, Priority = 1, Source = "System" })
+```
+
+### MinOverride / MaxOverride
+
+Raises or lowers the result's floor or ceiling (applied after Multiply/Override).
+
+```lua
+stats:AddModifier({ Stat = "Damage", Type = "MinOverride", Value = 1,   Source = "System" })
+stats:AddModifier({ Stat = "Damage", Type = "MaxOverride", Value = 999, Source = "System" })
+```
+
+### ClampMin / ClampMax
+
+Hard clamp applied last (after all other phases except Lock).
+
+```lua
+stats:AddModifier({ Stat = "Spread", Type = "ClampMin", Value = 0.1, Source = "System" })
+```
+
+### StackUnique
+
+Like `FlatAdd`, but only the highest value per `Source` contributes. Prevents the same source from stacking with itself.
+
+```lua
+stats:AddModifier({ Stat = "Damage", Type = "StackUnique", Value = 5, Source = "Perk" })
+```
+
+### Lock
+
+Short-circuits the entire pipeline. The highest-priority `Lock` mod's value is the final result, ignoring all other phases.
+
+```lua
+stats:AddModifier({ Stat = "Damage", Type = "Lock", Value = 0, Priority = 99, Source = "State" })
+```
+
+---
+
+## Behavior Modifier Types
+
+Behavior modifiers operate on a table base value registered via `RegisterBehavior`.
+
+### BehaviorOverride
+
+Shallow-merges `mod.Value` keys onto the behavior table. Higher priority wins per key.
+
+```lua
+stats:AddModifier({
+    Stat   = "Bullet",
+    Type   = "BehaviorOverride",
+    Value  = { MaxPenetrations = 3, Gravity = 0 },
+    Source = "Ammo",
 })
 ```
 
----
+### BehaviorDeepMerge
 
-## Hot/Cold Tiers
-
-When `HotPoolSize > 0`, a dedicated sub-pool of the most-recently-used objects is maintained. Acquire drains hot first (O(1) pop), then cold. Release refills hot first.
+Recursively merges `mod.Value` into the behavior table. Safe for nested config tables.
 
 ```lua
-local Pool = Fluix.new({
-    Factory     = function() return ExplosionEffect.new() end,
-    Reset       = function(e) e:Reset() end,
-    MinSize     = 64,
-    HotPoolSize = 8,
+stats:AddModifier({
+    Stat   = "Bullet",
+    Type   = "BehaviorDeepMerge",
+    Value  = { MaterialRestitution = { Grass = 0.2 } },
+    Source = "Ammo",
+})
+```
+
+### BehaviorHook
+
+Collects hook functions per event name. Multiple hooks for the same event are called in priority order.
+
+```lua
+stats:AddModifier({
+    Stat   = "Bullet",
+    Type   = "BehaviorHook",
+    Value  = {
+        OnPierce = function(ctx, result, velocity)
+            velocity *= 0.8
+        end,
+    },
+    Source = "Perk",
+})
+```
+
+### BehaviorExclusive
+
+Tag-based winner-takes-all. Only the highest-priority mod per `Tag` applies. Prevents multiple conflicting mods from stacking (e.g. two different scope types).
+
+```lua
+stats:AddModifier({
+    Stat   = "Bullet",
+    Type   = "BehaviorExclusive",
+    Tag    = "Scope",
+    Value  = { ZoomFactor = 4 },
+    Source = "Attachment",
+    Priority = 1,
+})
+```
+
+### BehaviorReplace
+
+Sets a priority cutoff. Behavior modifiers with lower priority than the highest `BehaviorReplace` are ignored. Use to make an attachment fully override the base behavior.
+
+```lua
+stats:AddModifier({
+    Stat     = "Bullet",
+    Type     = "BehaviorReplace",
+    Value    = true,
+    Priority = 5,
+    Source   = "Ammo",
 })
 ```
 
@@ -78,80 +231,102 @@ local Pool = Fluix.new({
 
 ## Signals
 
-Every pool exposes a `Signals` table of [VeSignal](https://vel136.github.io/VeSignal/) connections:
-
 | Signal | Parameters | Fires when |
 |--------|-----------|------------|
-| `OnAcquire` | `obj: T` | Object left the pool |
-| `OnRelease` | `obj: T` | Object returned to the pool |
-| `OnMiss` | `obj: T` | Factory was called (pool was empty) |
-| `OnGrow` | `added, total` | Pool expanded |
-| `OnShrink` | `removed, total` | Pool contracted |
+| `OnStatChanged` | `statName, newValue, oldValue` | A stat's final value changed |
+| `OnModifierAdded` | `modifier` | A modifier was added |
+| `OnModifierRemoved` | `modifierId` | A modifier was removed |
+| `OnBatchEnd` | (none) | A batch completed |
 
 ```lua
-Pool.Signals.OnMiss:Connect(function(obj)
-    warn("Pool miss — consider raising MinSize or Headroom")
+stats.Signals.OnStatChanged:Connect(function(statName, newValue, oldValue)
+    print(statName, oldValue, "→", newValue)
 end)
 ```
 
 ---
 
-## Cross-Pool Borrowing
+## Batching
 
-On a factory miss, Fluix checks `BorrowPeers` in order before allocating a new object. The borrowed object is tracked as live in the borrowing pool and released normally.
+Wrap multiple modifier changes in `Batch` to coalesce signals. `OnStatChanged` fires once per stat at the end, not once per modifier.
 
 ```lua
-local BulletPool = Fluix.new({ Factory = ..., Reset = ..., BorrowPeers = { FragPool } })
-
--- Or register dynamically:
-BulletPool:RegisterPeer(FragPool)
-FragPool:RegisterPeer(BulletPool)
+stats:Batch(function()
+    stats:RemoveBySource("Attachment", id)
+    stats:AddModifier({ Stat = "Damage", Type = "FlatAdd",  Value = 8,   Source = "Attachment", SourceId = id })
+    stats:AddModifier({ Stat = "Range",  Type = "Multiply", Value = 0.1, Source = "Attachment", SourceId = id })
+end)
+-- OnStatChanged fires for "Damage" and "Range" once each
 ```
 
 ---
 
-## Per-Object TTL
+## Source Tagging
 
-Set `TTL` to automatically reclaim objects that are held too long. Fluix's Heartbeat force-resets and returns any live object that exceeds its TTL.
+Every modifier can carry a `Source` and `SourceId` to group modifiers by what applied them. `RemoveBySource` removes all modifiers from a source in one call.
 
 ```lua
-local Pool = Fluix.new({
-    Factory = function() return StatusEffect.new() end,
-    Reset   = function(e) e:Deactivate() end,
-    TTL     = 10,   -- reclaim after 10 seconds
+-- Apply all mods from an attachment
+stats:AddModifier({ Stat = "Damage", ..., Source = "Attachment", SourceId = attachment.Id })
+stats:AddModifier({ Stat = "Range",  ..., Source = "Attachment", SourceId = attachment.Id })
+
+-- Remove them all when the attachment is unequipped
+stats:RemoveBySource("Attachment", attachment.Id)
+```
+
+Built-in source constants are available as `Quantix.Sources`:
+
+| Constant | Value |
+|----------|-------|
+| `Attachment` | `"Attachment"` |
+| `Ammo` | `"Ammo"` |
+| `Perk` | `"Perk"` |
+| `State` | `"State"` |
+| `System` | `"System"` |
+| `Ballistics` | `"Ballistics"` |
+
+---
+
+## Conditional Modifiers
+
+Pass a `Condition` function to a modifier. It is called on every evaluation. If it returns `false`, the modifier is skipped. Conditional stats are never cached.
+
+```lua
+stats:AddModifier({
+    Stat      = "Damage",
+    Type      = "FlatAdd",
+    Value     = 10,
+    Source    = "Perk",
+    Condition = function() return character:HasBuff("Rage") end,
 })
 ```
 
 ---
 
-## Lifecycle Control
+## Debugging
+
+### Trace
+
+Returns a formatted string showing the full evaluation pipeline for a stat.
 
 ```lua
-pool:Pause()     -- disconnect Heartbeat (preserves state)
-pool:Resume()    -- reconnect Heartbeat
-pool:Drain()     -- evict all pooled objects; live objects unaffected
-pool:ReleaseAll() -- force-return every live object at once
-pool:Destroy()   -- tear down the pool entirely
+print(stats:Trace("Damage"))
+-- Stat:  Damage
+-- Base:  25
+-- Active modifiers: 2
+--   [FlatAdd] Attachment/  value=10  priority=0
+--   [Multiply] Perk/  value=0.2  priority=0
+-- Phase [FlatAdd]:
+--   FlatAdd: { sum=10 }
+-- Phase [Multiply]:
+--   Multiply: { ungroupedSum=0.2, groups={} }
+-- = Final: 42
 ```
 
----
+### DebugDump
 
-## Configuration Reference
+Prints a full dump of all stats and active modifiers to the console.
 
-| Field | Type | Default | Description |
-|-------|------|---------|-------------|
-| `Factory` | `() -> T` | **required** | Allocates a fresh object |
-| `Reset` | `(T) -> ()` | **required** | Clears an object before re-pooling |
-| `MinSize` | `number` | `8` | Cold pool floor |
-| `MaxSize` | `number` | `256` | Hard cold-pool ceiling |
-| `Alpha` | `number` | `0.3` | EMA smoothing coefficient (0–1) |
-| `Headroom` | `number` | `2.0` | Target multiplier over EMA |
-| `SampleWindow` | `number` | `0.5` | Demand window in seconds |
-| `PrewarmBatchSize` | `number` | `16` | Max allocs per Heartbeat tick |
-| `ShrinkGraceSeconds` | `number` | `3.0` | Surplus duration before eviction |
-| `IdleDisconnectWindows` | `number` | `6` | Idle windows before dormancy |
-| `HotPoolSize` | `number` | `0` | Hot sub-pool capacity (0 = off) |
-| `TTL` | `number` | `nil` | Live object time limit in seconds |
-| `MissRateThreshold` | `number` | `nil` | Miss rate warn threshold |
-| `OnOverflow` | `(T) -> ()` | `nil` | Called when pool is full on Release |
-| `BorrowPeers` | `{ Pooler }` | `{}` | Pools to borrow from on miss |
+```lua
+stats:DebugDump()
+```

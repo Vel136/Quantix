@@ -4,150 +4,228 @@ sidebar_position: 1
 
 # Use Cases
 
-Practical patterns for the most common Fluix use-cases.
+Practical patterns for the most common Quantix scenarios.
 
 ---
 
-## Bullet / Projectile Pool
+## Weapon Stats with Attachments
 
-The most common pool pattern. Acquire on fire, release on impact or expiry.
+Create a controller from weapon data, apply attachment modifiers on equip, and remove them on unequip.
 
 ```lua
-local Fluix = require(ReplicatedStorage.Fluix)
+local Quantix = require(ReplicatedStorage.Quantix)
 
-local BulletPool = Fluix.new({
-    Factory     = function() return Bullet.new() end,
-    Reset       = function(b) b:Reset() end,
-    MinSize     = 64,
-    HotPoolSize = 8,    -- keep 8 bullets instantly ready
-    TTL         = 10,   -- force-reclaim bullets stuck longer than 10s
-    OnOverflow  = function(b) b:Destroy() end,
+local stats = Quantix.new({
+    Damage   = 25,
+    Range    = 50,
+    FireRate = 600,
+    Spread   = { Base = 1.5, ADS = 0.8 },
 })
 
-BulletPool:Seed(32)
-
-local function onFire(origin, direction, speed)
-    local bullet = BulletPool:Acquire(function(b)
-        b.Position = origin
-        b.Velocity = direction * speed
-        b:Enable()
+local function onAttachmentEquipped(attachment)
+    stats:Batch(function()
+        for _, mod in attachment.Modifiers do
+            mod.Source   = Quantix.Sources.Attachment
+            mod.SourceId = attachment.Id
+            stats:AddModifier(mod)
+        end
     end)
-    return bullet
 end
 
-local function onImpact(bullet)
-    BulletPool:Release(bullet)
+local function onAttachmentUnequipped(attachment)
+    stats:RemoveBySource(Quantix.Sources.Attachment, attachment.Id)
 end
 ```
 
 ---
 
-## Wave / Round Reset
+## Perk Bonuses (StackUnique)
 
-Use `ReleaseAll` to force-return every live object at the end of a wave without tracking individual references.
+A perk that gives +5 damage, but equipping the same perk twice should not double-stack it.
 
 ```lua
-local EnemyPool = Fluix.new({
-    Factory = function() return Enemy.new() end,
-    Reset   = function(e) e:Reset() end,
-    MinSize = 32,
+-- Only the highest value per source contributes
+stats:AddModifier({
+    Stat   = "Damage",
+    Type   = Quantix.Types.StackUnique,
+    Value  = 5,
+    Source = Quantix.Sources.Perk,
+    SourceId = "DamageBoost",
 })
 
-local function onWaveEnd()
-    EnemyPool:ReleaseAll()  -- all live enemies returned instantly
-end
-```
-
----
-
-## Shared Effect Pool with Cross-Pool Borrowing
-
-Two similar effect types share a fallback pool. On a miss in `ExplosionPool`, Fluix tries `SmokePool` before calling Factory.
-
-```lua
-local ExplosionPool = Fluix.new({
-    Factory  = function() return ExplosionEffect.new() end,
-    Reset    = function(e) e:Hide() end,
-    MinSize  = 16,
+-- Adding the same source again replaces rather than stacks
+stats:AddModifier({
+    Stat   = "Damage",
+    Type   = Quantix.Types.StackUnique,
+    Value  = 5,
+    Source = Quantix.Sources.Perk,
+    SourceId = "DamageBoost",
 })
 
-local SmokePool = Fluix.new({
-    Factory  = function() return SmokeEffect.new() end,
-    Reset    = function(s) s:Hide() end,
-    MinSize  = 16,
+print(stats:Get("Damage"))   --> 30 (not 35)
+```
+
+---
+
+## Conditional Modifier (Rage Buff)
+
+A bonus that only applies while the character has an active buff.
+
+```lua
+stats:AddModifier({
+    Stat      = "Damage",
+    Type      = Quantix.Types.FlatAdd,
+    Value     = 15,
+    Source    = Quantix.Sources.State,
+    Condition = function() return character:HasBuff("Rage") end,
 })
 
--- Mutual borrowing — each pool falls back to the other on miss
-ExplosionPool:RegisterPeer(SmokePool)
-SmokePool:RegisterPeer(ExplosionPool)
+-- No cache is kept for conditional stats, always re-evaluated
+print(stats:Get("Damage"))   -- includes +15 only when Rage is active
 ```
 
 ---
 
-## Cutscene / Loading Pause
+## Locking a Stat (Stun)
 
-Suppress Heartbeat ticks during a cutscene to avoid unnecessary pre-warm work.
+Force a stat to a fixed value regardless of all other modifiers.
 
 ```lua
-local function onCutsceneStart()
-    BulletPool:Pause()
-    EnemyPool:Pause()
-end
+local lockId = stats:AddModifier({
+    Stat     = "Damage",
+    Type     = Quantix.Types.Lock,
+    Value    = 0,
+    Priority = 99,
+    Source   = Quantix.Sources.State,
+})
 
-local function onCutsceneEnd()
-    BulletPool:Resume()
-    EnemyPool:Resume()
-end
+print(stats:Get("Damage"))   --> 0
+
+-- Remove the lock when stun ends
+stats:RemoveModifier(lockId)
 ```
 
 ---
 
-## Memory Pressure Drain
+## Replacing Attachment Modifiers
 
-Evict all pooled objects without destroying the pool, freeing memory during a loading screen while keeping the pool alive for the next session.
-
-```lua
-local function onLoadingScreenOpen()
-    BulletPool:Drain()   -- evicts cold + hot; live objects unaffected
-end
-```
-
----
-
-## Miss Monitoring
-
-Wire up `OnMiss` to measure pool health and tune `MinSize` or `Headroom` in development.
+Swap one attachment for another atomically. No intermediate state fires.
 
 ```lua
-BulletPool.Signals.OnMiss:Connect(function(obj)
-    warn(string.format(
-        "[BulletPool] Miss #%d — consider raising MinSize or Headroom",
-        BulletPool:GetMissCount()
-    ))
-end)
-```
-
----
-
-## Zero-Allocation Hot-Path Inspection
-
-Check pool state without allocating on the acquire/release path.
-
-```lua
-game:GetService("RunService").Heartbeat:Connect(function()
-    if BulletPool:GetTotalAvailable() < 4 then
-        -- Pool running low — log or pre-warm externally
+local function swapAttachment(old, new)
+    local newMods = {}
+    for _, mod in new.Modifiers do
+        mod.Source   = Quantix.Sources.Attachment
+        mod.SourceId = new.Id
+        table.insert(newMods, mod)
     end
-end)
+
+    -- Removes old, adds new, fires signals once per changed stat
+    stats:ReplaceBySource(Quantix.Sources.Attachment, old.Id, newMods)
+end
 ```
 
 ---
 
-## Stat Snapshot
+## Ammo Type: Behavior Override
 
-`GetStats()` returns a snapshot table useful for debugging dashboards or logging.
+Switch bullet behavior when a special ammo type is loaded, then restore defaults on unload.
 
 ```lua
-local stats = BulletPool:GetStats()
-print(stats.LiveCount, stats.HotSize, stats.ColdSize, stats.MissCount)
+stats:RegisterBehavior("Bullet", {
+    MaxPenetrations = 1,
+    Gravity         = 9.81,
+    Damage          = 25,
+})
+
+local function onAmmoLoaded(ammo)
+    stats:AddModifier({
+        Stat     = "Bullet",
+        Type     = Quantix.Types.BehaviorOverride,
+        Value    = ammo.BehaviorOverrides,  -- e.g. { MaxPenetrations = 3, Gravity = 0 }
+        Source   = Quantix.Sources.Ammo,
+        SourceId = ammo.Id,
+        Priority = 1,
+    })
+end
+
+local function onAmmoUnloaded(ammo)
+    stats:RemoveBySource(Quantix.Sources.Ammo, ammo.Id)
+end
+
+local behavior, hooks = stats:Evaluate("Bullet", {})
+```
+
+---
+
+## Scope: BehaviorExclusive
+
+Only one scope type should apply at a time. `BehaviorExclusive` with a shared `Tag` guarantees the highest-priority one wins.
+
+```lua
+stats:AddModifier({
+    Stat     = "Bullet",
+    Type     = Quantix.Types.BehaviorExclusive,
+    Tag      = "Scope",
+    Value    = { ZoomFactor = 2, AimSpeed = 0.8 },
+    Source   = Quantix.Sources.Attachment,
+    SourceId = "IronSights",
+    Priority = 0,
+})
+
+stats:AddModifier({
+    Stat     = "Bullet",
+    Type     = Quantix.Types.BehaviorExclusive,
+    Tag      = "Scope",
+    Value    = { ZoomFactor = 4, AimSpeed = 0.6 },
+    Source   = Quantix.Sources.Attachment,
+    SourceId = "4xScope",
+    Priority = 1,
+})
+
+-- Only 4xScope applies — it has the higher priority
+local behavior, _ = stats:Evaluate("Bullet", {})
+print(behavior.ZoomFactor)   --> 4
+```
+
+---
+
+## Batch Replace on Loadout Change
+
+Rebuild all perk modifiers at once after a loadout change, coalescing all signals into one pass.
+
+```lua
+local function onLoadoutChanged(newPerks)
+    local mods = {}
+    for _, perk in newPerks do
+        for _, mod in perk:GetModifiers() do
+            mod.Source = Quantix.Sources.Perk
+            table.insert(mods, mod)
+        end
+    end
+    stats:ReplaceBySource(Quantix.Sources.Perk, nil, mods)
+end
+```
+
+---
+
+## Debug Trace
+
+Inspect the full modifier pipeline for a specific stat during development.
+
+```lua
+print(stats:Trace("Damage"))
+-- Stat:  Damage
+-- Base:  25
+-- Active modifiers: 3
+--   [FlatAdd]    Attachment/scope  value=0   priority=0
+--   [AddPercent] Perk/DmgBoost     value=15  priority=0
+--   [Multiply]   State/rage        value=0.2 priority=0
+-- Phase [FlatAdd]:
+--   FlatAdd: { sum=0 }
+-- Phase [AddPercent]:
+--   AddPercent: { totalPercent=15 }
+-- Phase [Multiply]:
+--   Multiply: { ungroupedSum=0.2, groups={} }
+-- = Final: 33.75
 ```

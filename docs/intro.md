@@ -4,105 +4,114 @@ sidebar_position: 1
 
 # Getting Started
 
-Fluix is a single-module adaptive object pool. Install it, configure a Factory and Reset, and start pooling.
+Quantix is a stat modifier library for Roblox Luau. Install it, create a `StatController` with your base stats, and start stacking modifiers.
 
 ---
 
 ## Installation
 
-Get Fluix from the Roblox Creator Store:
+Get Quantix from the Roblox Creator Store:
 
-**[Get Fluix on Creator Store](https://create.roblox.com/store/asset/84852268228213/Fluix)**
+**[Get Quantix on Creator Store](https://create.roblox.com/store/asset/TODO/Quantix)**
 
 Drop the module into `ReplicatedStorage` and require it:
 
 ```lua
-local Fluix = require(ReplicatedStorage.Fluix)
+local Quantix = require(ReplicatedStorage.Quantix)
 ```
 
-No dependencies. No setup. One require.
+Quantix depends on **Signal** and **ModifierTypes**, both included in the package.
 
 ---
 
-## Your First Pool
+## Your First StatController
 
 ```lua
-local Fluix = require(ReplicatedStorage.Fluix)
+local Quantix = require(ReplicatedStorage.Quantix)
 
-local BulletPool = Fluix.new({
-    Factory = function() return Bullet.new() end,
-    Reset   = function(b) b:Reset() end,
-    MinSize = 32,
+-- Pass a weapon data table; numeric leaf values become stat keys
+local stats = Quantix.new({
+    Damage  = 25,
+    Range   = 50,
+    Spread  = { Base = 1.5, ADS = 0.8 },
 })
 
--- Pre-allocate before gameplay starts
-BulletPool:Seed(20)
-
--- Acquire with an optional inline initialiser
-local bullet = BulletPool:Acquire(function(b)
-    b.Position = spawnPos
-    b.Velocity = direction * speed
-end)
-
--- Return when done
-BulletPool:Release(bullet)
+-- Read the base value
+print(stats:Get("Damage"))          --> 25
+print(stats:Get("Spread.Base"))     --> 1.5
 ```
 
 ---
 
-## Signals
-
-Every pool exposes lifecycle signals via [VeSignal](https://vel136.github.io/VeSignal/):
+## Adding Modifiers
 
 ```lua
-BulletPool.Signals.OnMiss:Connect(function(obj)
-    warn("Pool miss — consider raising MinSize or Headroom")
-end)
-
-BulletPool.Signals.OnAcquire:Connect(function(obj)
-    -- obj just left the pool
-end)
-```
-
----
-
-## Hot/Cold Tiers
-
-Set `HotPoolSize` to maintain a small sub-pool of immediately-ready objects. Acquire drains hot first, then cold. Release refills hot first.
-
-```lua
-local Pool = Fluix.new({
-    Factory     = function() return Part.new() end,
-    Reset       = function(p) p.Parent = nil end,
-    MinSize     = 64,
-    HotPoolSize = 8,   -- keep 8 objects always warm
+-- +10 flat damage from an attachment
+local id = stats:AddModifier({
+    Stat   = "Damage",
+    Type   = Quantix.Types.FlatAdd,
+    Value  = 10,
+    Source = Quantix.Sources.Attachment,
 })
+
+print(stats:Get("Damage"))   --> 35
+
+-- Remove it later
+stats:RemoveModifier(id)
+print(stats:Get("Damage"))   --> 25
 ```
 
 ---
 
-## Cross-Pool Borrowing
+## Reacting to Changes
 
-On a factory miss, Fluix checks peer pools before allocating:
+`StatController` fires signals whenever a stat's final value changes:
 
 ```lua
-local BulletPool = Fluix.new({ Factory = ..., Reset = ... })
-local FragPool   = Fluix.new({ Factory = ..., Reset = ... })
+stats.Signals.OnStatChanged:Connect(function(statName, newValue, oldValue)
+    print(statName, oldValue, "→", newValue)
+end)
 
--- Mutual borrowing
-BulletPool:RegisterPeer(FragPool)
-FragPool:RegisterPeer(BulletPool)
+stats.Signals.OnModifierAdded:Connect(function(mod)
+    print("Modifier added:", mod.Id, mod.Type)
+end)
 ```
 
 ---
 
-## Lifecycle Control
+## Batching Multiple Changes
+
+Wrap bulk modifier changes in a `Batch` to coalesce signals. One `OnStatChanged` fires per stat, not one per modifier:
 
 ```lua
-pool:Pause()   -- disconnect Heartbeat during a cutscene
-pool:Resume()  -- reconnect when gameplay resumes
-pool:Drain()   -- evict all pooled objects under memory pressure
-pool:Destroy() -- destroy the pool entirely
+stats:Batch(function()
+    stats:RemoveBySource(Quantix.Sources.Attachment, attachmentId)
+    stats:AddModifier({ Stat = "Damage",  Type = Quantix.Types.FlatAdd, Value = 5, Source = Quantix.Sources.Attachment, SourceId = attachmentId })
+    stats:AddModifier({ Stat = "Range",   Type = Quantix.Types.Multiply, Value = 0.1, Source = Quantix.Sources.Attachment, SourceId = attachmentId })
+end)
+```
+
+---
+
+## Behavior Modifiers
+
+Stats can also be tables. Use `RegisterBehavior` to set a base behavior, then modify it with `BehaviorOverride`, `BehaviorDeepMerge`, `BehaviorHook`, or `BehaviorExclusive`:
+
+```lua
+stats:RegisterBehavior("Bullet", {
+    MaxPenetrations = 1,
+    Gravity         = 9.81,
+})
+
+stats:AddModifier({
+    Stat   = "Bullet",
+    Type   = Quantix.Types.BehaviorOverride,
+    Value  = { MaxPenetrations = 3 },
+    Source = Quantix.Sources.Ammo,
+})
+
+local behavior, hooks = stats:Evaluate("Bullet", {})
+print(behavior.MaxPenetrations)   --> 3
 ```
 
 ---
@@ -111,11 +120,14 @@ pool:Destroy() -- destroy the pool entirely
 
 | I want to… | Method |
 |------------|--------|
-| Create a pool | [`Fluix.new`](../api/Fluix#new) |
-| Pre-warm objects | [`pool:Seed`](../api/Fluix#Seed) |
-| Get an object | [`pool:Acquire`](../api/Fluix#Acquire) |
-| Return an object | [`pool:Release`](../api/Fluix#Release) |
-| Return all live objects | [`pool:ReleaseAll`](../api/Fluix#ReleaseAll) |
-| Check available count | [`pool:GetTotalAvailable`](../api/Fluix#GetTotalAvailable) |
-| See all stats | [`pool:GetStats`](../api/Fluix#GetStats) |
+| Create a controller | [`Quantix.new`](../api/Quantix#new) |
+| Read a stat | [`stats:Get`](../api/Quantix#Get) |
+| Read all stats | [`stats:GetAll`](../api/Quantix#GetAll) |
+| Read a group of stats | [`stats:GetGroup`](../api/Quantix#GetGroup) |
+| Add a modifier | [`stats:AddModifier`](../api/Quantix#AddModifier) |
+| Remove a modifier | [`stats:RemoveModifier`](../api/Quantix#RemoveModifier) |
+| Remove all from a source | [`stats:RemoveBySource`](../api/Quantix#RemoveBySource) |
+| Replace source modifiers | [`stats:ReplaceBySource`](../api/Quantix#ReplaceBySource) |
+| Batch multiple changes | [`stats:Batch`](../api/Quantix#Batch) |
+| Debug a stat pipeline | [`stats:Trace`](../api/Quantix#Trace) |
 | See practical examples | [Use Cases](./guides/use-cases) |

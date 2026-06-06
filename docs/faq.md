@@ -10,120 +10,118 @@ Answers to the questions that come up most often.
 
 ## General
 
-**What is Fluix?**
+**What is Quantix?**
 
-Fluix is a per-instance generic object pool for Roblox Luau. It tracks acquisition demand with an exponential moving average and automatically pre-warms and shrinks the pool to match real usage. It supports hot/cold priority tiers, cross-pool borrowing, per-object TTL, and lifecycle signals.
-
----
-
-**Is Fluix free?**
-
-Yes. Fluix is released under the MIT License.
+Quantix is a stat modifier library for Roblox Luau. It manages numeric and table-based stats through a typed, phase-ordered pipeline. Modifiers are grouped by type (FlatAdd, Multiply, Override, etc.), evaluated in a fixed order, and cached until invalidated. Stats stack exactly as intended regardless of how many modifiers are active.
 
 ---
 
-**Does Fluix allocate on the hot path?**
+**Is Quantix free?**
 
-No. `Acquire` and `Release` are zero-allocation when the pool is not empty or full. Allocations only occur in the Heartbeat pre-warm tick or on a factory miss.
-
----
-
-**Can I use Fluix on the server and the client?**
-
-Yes. Fluix uses `RunService.Heartbeat` for its internal tick, which fires on both server and client. Require it wherever you need a pool.
+Yes. Quantix is released under the MIT License.
 
 ---
 
-## Configuration
+**What problems does Quantix solve?**
 
-**What should I set `MinSize` to?**
-
-Set it to the minimum number of objects you expect to be in use simultaneously at any point in time. A value that is too low means the pool will miss frequently on burst demand; too high wastes memory.
+Manual stat stacking with scattered `+` and `*` operations leads to order-of-operations bugs, duplicate logic, and no single source of truth. Quantix centralises all modifier logic: one `Get` call returns the correct final value every time.
 
 ---
 
-**What does `Headroom` do?**
+**Can I use Quantix on both server and client?**
 
-`Headroom` scales the EMA demand estimate to give the pool a buffer above observed demand. `Headroom = 2.0` means the pool targets twice the smoothed acquisition rate. Increase it if you see frequent misses; decrease it to reduce idle memory.
-
----
-
-**When should I enable `HotPoolSize`?**
-
-When you have a high-frequency acquire/release pattern (e.g. bullet fire at 60Hz) and want to guarantee the fastest possible pop for the first `HotPoolSize` objects. Hot objects are O(1) stack pops; cold objects are O(1) array pops. The difference is cache locality, not algorithmic complexity.
+Yes. Quantix has no service dependencies beyond `Signal`. Require it on the server, the client, or both.
 
 ---
 
-**What does `Alpha` control?**
+## Modifiers
 
-`Alpha` is the smoothing coefficient for the EMA demand tracker. A higher value (closer to 1) makes the EMA react faster to spikes; a lower value (closer to 0) makes it smoother and more stable. Default is `0.3`.
+**What is the evaluation order?**
 
----
-
-## Acquire & Release
-
-**What happens if I call `Acquire` on an empty pool?**
-
-Fluix tries `BorrowPeers` in order. If no peer has a spare object, it calls `Factory` directly (a miss). The miss is counted and `Signals.OnMiss` fires.
+Phases run in this fixed order: `SetBase → FlatAdd → AddPercent → Multiply → Override → MinOverride → MaxOverride → Clamp → Lock`. Behavior phases follow: `BehaviorReplace → BehaviorOverride → BehaviorDeepMerge → BehaviorHook → BehaviorExclusive`.
 
 ---
 
-**What happens if I call `Release` on a full pool?**
+**What is the difference between `FlatAdd` and `AddPercent`?**
 
-If `OnOverflow` is set, it is called with the object. Otherwise the object is dropped (not returned to the pool and not destroyed — the caller is responsible if it needs cleanup).
-
----
-
-**Is double-release safe?**
-
-Double-release is detected and a warning is emitted. The object is not returned to the pool a second time.
+`FlatAdd` adds a constant amount (`result + value`). `AddPercent` adds a percentage of the *base* value, not the current result (`result + base × (percent / 100)`). This means `AddPercent` is not affected by prior `FlatAdd` mods.
 
 ---
 
-**What does `ReleaseAll` do?**
+**What is the difference between `Override` and `Lock`?**
 
-It force-returns every currently live object by calling `Reset` on each and returning it to the pool (or calling `OnOverflow` if the pool is full). Useful for wave clears or round resets.
-
----
-
-## TTL
-
-**How does TTL work?**
-
-Each acquired object is stamped with an acquisition timestamp. On every Heartbeat tick, Fluix scans live objects and force-reclaims any that have been held longer than `TTL` seconds. `Reset` is called and the object is returned to the pool (or `OnOverflow` if full).
+`Override` replaces the result at its phase in the pipeline; subsequent phases (Clamp, Lock) still run. `Lock` short-circuits the entire pipeline immediately; no other phase applies. Use `Lock` when a stat must be a specific value regardless of anything else (e.g. a stunned character who always deals 0 damage).
 
 ---
 
-**Does TTL affect performance?**
+**How does `Multiply` work with multiple mods?**
 
-The TTL scan runs in the Heartbeat, not on the acquire/release hot path. Cost scales with `GetLiveCount()`. For typical pool sizes it is negligible.
-
----
-
-## Peers
-
-**What is cross-pool borrowing?**
-
-When the pool misses (cold and hot pools are both empty), Fluix iterates `BorrowPeers` and tries to pop from each peer's cold pool. The first successful borrow is `Reset` and returned as the acquired object. The object is tracked as live in the borrowing pool.
+Ungrouped `Multiply` mods are summed and applied as `result × (1 + sum)`. So two ungrouped mods of `0.1` each give `result × 1.2`. They are additive with each other, not compounding. To get compounding multiplication, assign mods to different `MultGroup` values; groups multiply together.
 
 ---
 
-**Do I need mutual borrowing?**
+**What does `StackUnique` do?**
 
-Not necessarily. One-directional borrowing (A borrows from B but not vice versa) is valid. Use mutual registration (`A:RegisterPeer(B)` and `B:RegisterPeer(A)`) when both pools serve similar object types and you want each to act as a fallback for the other.
+`StackUnique` is like `FlatAdd` but only the highest value per source contributes. It prevents the same source from stacking a bonus with itself while still allowing different sources to add their own bonus.
+
+---
+
+**What is `BehaviorReplace`?**
+
+It sets a priority cutoff for behavior merging. Any `BehaviorOverride`, `BehaviorDeepMerge`, or `BehaviorHook` modifier with a priority lower than the active `BehaviorReplace` cutoff is ignored. Use it when an ammo type or attachment should completely replace the base behavior rather than patch it.
+
+---
+
+## Evaluation & Caching
+
+**Are stat values cached?**
+
+Yes. `Get` caches the final result for each stat after the first evaluation and returns the cached value on subsequent calls. The cache is invalidated whenever a modifier is added, removed, or the base value changes. Stats with a `Condition` function are never cached because their value depends on runtime state.
+
+---
+
+**When does `OnStatChanged` fire?**
+
+After any modifier add/remove or `SetBase` call that results in a different final value. Inside a `Batch`, signals are deferred until `EndBatch`. One signal fires per stat that changed, not one per modifier.
+
+---
+
+## Sources
+
+**What is `Source` and `SourceId` for?**
+
+They tag modifiers so they can be removed in bulk. `Source` is a category (e.g. `"Attachment"`, `"Perk"`) and `SourceId` is the specific instance (e.g. the attachment's ID). `RemoveBySource("Attachment", id)` removes all modifiers applied by that specific attachment in one call.
+
+---
+
+**Do I have to use the built-in source constants?**
+
+No. `Quantix.Sources` constants are provided for convenience, but `Source` is a plain string. Pass any value that makes sense for your project.
+
+---
+
+## Behaviors
+
+**What is the difference between `BehaviorOverride` and `BehaviorDeepMerge`?**
+
+`BehaviorOverride` does a shallow merge. Top-level keys in `mod.Value` overwrite the corresponding keys in the behavior table. `BehaviorDeepMerge` recurses into nested tables, so it can patch a specific sub-key without wiping its siblings.
+
+---
+
+**How do `BehaviorHook` functions get called?**
+
+`Evaluate` returns `(finalBehavior, hooks)`. The `hooks` table is `{ [eventName] = { fn, fn, ... } }`. Your system is responsible for iterating and calling them at the appropriate lifecycle moment (e.g. `OnPierce`, `OnImpact`).
 
 ---
 
 ## Lifecycle
 
-**What is the difference between `Drain` and `Destroy`?**
+**How do I clean up a StatController?**
 
-`Drain` evicts all pooled objects (cold and hot) by calling `OnOverflow` or discarding them. Live objects are unaffected. The pool continues to function — new objects can be acquired and the Heartbeat keeps running.
-
-`Destroy` tears down the pool entirely, disconnects the Heartbeat, clears all state, and makes the pool unusable.
+Call `stats:Destroy()`. It disconnects all signals, clears all internal tables, and makes the controller unusable. Always call `Destroy` when the owner (e.g. a weapon or character) is removed.
 
 ---
 
-**What does `Pause` do?**
+**What happens if I call `Get` on a stat with no base value?**
 
-It disconnects the Heartbeat without clearing any pool state. Pre-warming, adaptive sizing, and TTL checks stop until `Resume` is called. Useful during cutscenes or loading screens where you don't want background ticks.
+A warning is emitted and `nil` is returned. Register all stats via `Quantix.new(data)`, `SetBase`, or `RegisterBehavior` before adding modifiers.

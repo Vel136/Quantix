@@ -2,10 +2,10 @@
 sourceDir = ["docs"]
 
 [docusaurus]
-title = "Fluix"
-tagline = "Every object ready before demand arrives."
+title = "Quantix"
+tagline = "Stats that stack exactly as intended."
 url = "https://vel136.github.io"
-baseUrl = "/Fluix/"
+baseUrl = "/Quantix/"
 
 [home]
 enabled = true
@@ -13,10 +13,10 @@ includeReadme = true
 
 [[classOrder]]
 section = "API"
-classes = ["Fluix"]
+classes = ["Quantix"]
 
 [navbar]
-title = "Fluix"
+title = "Quantix"
 
 [footer]
 style = "dark"
