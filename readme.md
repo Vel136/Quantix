@@ -2,7 +2,7 @@
 
 Stats that stack exactly as intended.
 
-**[Documentation](https://vel136.github.io/Quantix/)** · **[Creator Store](https://create.roblox.com/store/asset/TODO/Quantix)**
+**[Documentation](https://vel136.github.io/Quantix/)** · **[Creator Store](https://create.roblox.com/store/asset/98164908675977)**
 
 **Version:** V1.1.0
 
@@ -12,7 +12,7 @@ Quantix is a stat modifier library for Roblox Luau. It manages numeric and table
 
 ## Install
 
-Get Quantix from the **[Roblox Creator Store](https://create.roblox.com/store/asset/TODO/Quantix)**, drop the module into `ReplicatedStorage`, and require it:
+Get Quantix from the **[Roblox Creator Store](https://create.roblox.com/store/asset/98164908675977)**, drop the module into `ReplicatedStorage`, and require it:
 
 ```lua
 local Quantix = require(ReplicatedStorage.Quantix)

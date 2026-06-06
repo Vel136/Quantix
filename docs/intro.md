@@ -12,7 +12,7 @@ Quantix is a stat modifier library for Roblox Luau. Install it, create a `StatCo
 
 Get Quantix from the Roblox Creator Store:
 
-**[Get Quantix on Creator Store](https://create.roblox.com/store/asset/TODO/Quantix)**
+**[Get Quantix on Creator Store](https://create.roblox.com/store/asset/98164908675977)**
 
 Drop the module into `ReplicatedStorage` and require it:
 
