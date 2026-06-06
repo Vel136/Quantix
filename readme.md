@@ -192,4 +192,6 @@ print(behavior.MaxPenetrations)   --> 3
 
 ## License
 
-MIT, Copyright 2026 VeDevelopment
+Copyright (c) 2026 VeDevelopment. All rights reserved.
+
+Proprietary software. No use, copying, modification, or distribution without express written permission from VeDevelopment.
