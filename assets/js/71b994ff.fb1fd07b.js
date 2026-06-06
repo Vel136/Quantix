@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkdocs=self.webpackChunkdocs||[]).push([[635],{4410:s=>{s.exports=JSON.parse('{"sourceUrl":"https://github.com/Vel136/Quantix/blob/master","baseUrl":"/Quantix/","classOrder":[{"section":"API","classes":["Quantix"]}],"apiCategories":[]}')}}]);

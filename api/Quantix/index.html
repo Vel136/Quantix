@@ -1,0 +1,938 @@
+<!doctype html>
+<html lang="en" dir="ltr" class="plugin-moonwave plugin-id-moonwave" data-has-hydrated="false">
+<head>
+<meta charset="UTF-8">
+<meta name="generator" content="Docusaurus v3.7.0">
+<title data-rh="true">Quantix | Quantix</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://vel136.github.io/Quantix/api/Quantix"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docusaurus_tag" content="default"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docsearch:docusaurus_tag" content="default"><meta data-rh="true" property="og:title" content="Quantix | Quantix"><meta data-rh="true" name="description" content="Deterministic, phase-ordered stat modifier system for Roblox Luau.
+
+Quantix manages numeric and table-based stats through a typed modifier
+pipeline. Modifiers are sorted into phases
+(`SetBase → FlatAdd → AddPercent → Multiply → Override → Clamp → Lock`),
+evaluated in a fixed order, and cached until invalidated.
+
+Behavior modifier types (`BehaviorOverride`, `BehaviorDeepMerge`,
+`BehaviorHook`, `BehaviorExclusive`, `BehaviorReplace`) run through the
+same pipeline, replacing ad-hoc merge logic for table-based stats.
+
+```lua
+local Quantix = require(ReplicatedStorage.Quantix)
+
+local stats = Quantix.new({
+    Damage  = 25,
+    Range   = 50,
+    Spread  = { Base = 1.5, ADS = 0.8 },
+})
+
+local id = stats:AddModifier({
+    Stat   = &quot;Damage&quot;,
+    Type   = Quantix.Types.FlatAdd,
+    Value  = 10,
+    Source = Quantix.Sources.Attachment,
+})
+
+print(stats:Get(&quot;Damage&quot;))   --&gt; 35
+stats:RemoveModifier(id)
+print(stats:Get(&quot;Damage&quot;))   --&gt; 25
+```"><meta data-rh="true" property="og:description" content="Deterministic, phase-ordered stat modifier system for Roblox Luau.
+
+Quantix manages numeric and table-based stats through a typed modifier
+pipeline. Modifiers are sorted into phases
+(`SetBase → FlatAdd → AddPercent → Multiply → Override → Clamp → Lock`),
+evaluated in a fixed order, and cached until invalidated.
+
+Behavior modifier types (`BehaviorOverride`, `BehaviorDeepMerge`,
+`BehaviorHook`, `BehaviorExclusive`, `BehaviorReplace`) run through the
+same pipeline, replacing ad-hoc merge logic for table-based stats.
+
+```lua
+local Quantix = require(ReplicatedStorage.Quantix)
+
+local stats = Quantix.new({
+    Damage  = 25,
+    Range   = 50,
+    Spread  = { Base = 1.5, ADS = 0.8 },
+})
+
+local id = stats:AddModifier({
+    Stat   = &quot;Damage&quot;,
+    Type   = Quantix.Types.FlatAdd,
+    Value  = 10,
+    Source = Quantix.Sources.Attachment,
+})
+
+print(stats:Get(&quot;Damage&quot;))   --&gt; 35
+stats:RemoveModifier(id)
+print(stats:Get(&quot;Damage&quot;))   --&gt; 25
+```"><link data-rh="true" rel="canonical" href="https://vel136.github.io/Quantix/api/Quantix"><link data-rh="true" rel="alternate" href="https://vel136.github.io/Quantix/api/Quantix" hreflang="en"><link data-rh="true" rel="alternate" href="https://vel136.github.io/Quantix/api/Quantix" hreflang="x-default"><link rel="stylesheet" href="/Quantix/assets/css/styles.5cbed574.css">
+<script src="/Quantix/assets/js/runtime~main.29721e88.js" defer="defer"></script>
+<script src="/Quantix/assets/js/main.2acf0690.js" defer="defer"></script>
+</head>
+<body class="navigation-with-keyboard">
+<script>!function(){function t(t){document.documentElement.setAttribute("data-theme",t)}var e=function(){try{return new URLSearchParams(window.location.search).get("docusaurus-theme")}catch(t){}}()||function(){try{return window.localStorage.getItem("theme")}catch(t){}}();null!==e?t(e):window.matchMedia("(prefers-color-scheme: dark)").matches?t("dark"):(window.matchMedia("(prefers-color-scheme: light)").matches,t("light"))}(),function(){try{const c=new URLSearchParams(window.location.search).entries();for(var[t,e]of c)if(t.startsWith("docusaurus-data-")){var a=t.replace("docusaurus-data-","data-");document.documentElement.setAttribute(a,e)}}catch(t){}}()</script><div id="__docusaurus"><div role="region" aria-label="Skip to main content"><a class="skipToContent_fXgn" href="#__docusaurus_skipToContent_fallback">Skip to main content</a></div><nav aria-label="Main" class="navbar navbar--fixed-top"><div class="navbar__inner"><div class="navbar__items"><button aria-label="Toggle navigation bar" aria-expanded="false" class="navbar__toggle clean-btn" type="button"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path></svg></button><a class="navbar__brand" href="/Quantix/"><b class="navbar__title text--truncate">Quantix</b></a><a class="navbar__item navbar__link" href="/Quantix/docs/intro">Docs</a><a aria-current="page" class="navbar__item navbar__link navbar__link--active" href="/Quantix/api/">API</a></div><div class="navbar__items navbar__items--right"><a href="https://github.com/Vel136/Quantix" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">GitHub<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPIU"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a><div class="toggle_vylO colorModeToggle_DEke"><button class="clean-btn toggleButton_gllP toggleButtonDisabled_aARS" type="button" disabled="" title="Switch between dark and light mode (currently light mode)" aria-label="Switch between dark and light mode (currently light mode)" aria-live="polite" aria-pressed="false"><svg viewBox="0 0 24 24" width="24" height="24" class="lightToggleIcon_pyhR"><path fill="currentColor" d="M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3S10.35,9,12,9 M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5 S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0 c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41 L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41 s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06 c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" class="darkToggleIcon_wfgR"><path fill="currentColor" d="M9.37,5.51C9.19,6.15,9.1,6.82,9.1,7.5c0,4.08,3.32,7.4,7.4,7.4c0.68,0,1.35-0.09,1.99-0.27C17.45,17.19,14.93,19,12,19 c-3.86,0-7-3.14-7-7C5,9.07,6.81,6.55,9.37,5.51z M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36 c-0.98,1.37-2.58,2.26-4.4,2.26c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"></path></svg></button></div><div class="navbarSearchContainer_Bca1"><div class="navbar__search"><span aria-label="expand searchbar" role="button" class="search-icon" tabindex="0"></span><input id="search_input_react" type="search" placeholder="Loading..." aria-label="Search" class="navbar__search-input search-bar" disabled=""></div></div></div></div><div role="presentation" class="navbar-sidebar__backdrop"></div></nav><div id="__docusaurus_skipToContent_fallback" class="main-wrapper mainWrapper_z2l0 docPageContainer_wNNk"><div class="docPage_Dpn1"><div class="docSidebarContainer_o_re"><div class="sidebar_njMd"><nav aria-label="Docs sidebar" class="menu thin-scrollbar menu_SIkG"><ul class="theme-doc-sidebar-menu menu__list"><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item"><div class="menu__list-item-collapsible"><a class="menu__link menu__link--sublist menu__link--sublist-caret menu__link--active" role="button" aria-expanded="true" href="/Quantix/api/Quantix">API</a></div><ul style="display:block;overflow:visible;height:auto" class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link menu__link--active" aria-current="page" tabindex="0" href="/Quantix/api/Quantix">​Quantix</a></li></ul></li></ul></nav></div></div><main class="docMainContainer_HJE1"><div class="container padding-vert--lg"><div class="row"><div class="col docItemCol_MU3C"><div class="docItemContainer_Wv98"><article><div class="member_J0w1 markdown"><div class="tocCollapsible_ETCw theme-doc-toc-mobile tocMobile_oUs_"><button type="button" class="clean-btn tocCollapsibleButton_TO0P">On this page</button></div><header><h1 class="docTitle_mZRt" style="text-decoration:none"><span style="display:inline-block">Quantix</span></h1><div class="luaClassTags_EipM"></div><div>
+<p>Deterministic, phase-ordered stat modifier system for Roblox Luau.</p>
+<p>
+  Quantix manages numeric and table-based stats through a typed modifier
+  pipeline. Modifiers are sorted into phases
+  (<code>SetBase → FlatAdd → AddPercent → Multiply → Override → Clamp → Lock</code>),
+  evaluated in a fixed order, and cached until invalidated.
+</p>
+<p>
+  Behavior modifier types (<code>BehaviorOverride</code>, <code>BehaviorDeepMerge</code>,
+  <code>BehaviorHook</code>, <code>BehaviorExclusive</code>, <code>BehaviorReplace</code>) run through the
+  same pipeline, replacing ad-hoc merge logic for table-based stats.
+</p>
+<pre class="language-lua"><code class="language-lua"><span class="token keyword">local</span> Quantix <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span>ReplicatedStorage<span class="token punctuation">.</span>Quantix<span class="token punctuation">)</span>
+
+<span class="token keyword">local</span> stats <span class="token operator">=</span> Quantix<span class="token punctuation">.</span><span class="token function">new</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+    Damage  <span class="token operator">=</span> <span class="token number">25</span><span class="token punctuation">,</span>
+    Range   <span class="token operator">=</span> <span class="token number">50</span><span class="token punctuation">,</span>
+    Spread  <span class="token operator">=</span> <span class="token punctuation">{</span> Base <span class="token operator">=</span> <span class="token number">1.5</span><span class="token punctuation">,</span> ADS <span class="token operator">=</span> <span class="token number">0.8</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span>
+
+<span class="token keyword">local</span> id <span class="token operator">=</span> stats<span class="token punctuation">:</span><span class="token function">AddModifier</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+    Stat   <span class="token operator">=</span> <span class="token string">"Damage"</span><span class="token punctuation">,</span>
+    Type   <span class="token operator">=</span> Quantix<span class="token punctuation">.</span>Types<span class="token punctuation">.</span>FlatAdd<span class="token punctuation">,</span>
+    Value  <span class="token operator">=</span> <span class="token number">10</span><span class="token punctuation">,</span>
+    Source <span class="token operator">=</span> Quantix<span class="token punctuation">.</span>Sources<span class="token punctuation">.</span>Attachment<span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span>
+
+<span class="token function">print</span><span class="token punctuation">(</span>stats<span class="token punctuation">:</span><span class="token function">Get</span><span class="token punctuation">(</span><span class="token string">"Damage"</span><span class="token punctuation">)</span><span class="token punctuation">)</span>   <span class="token comment">--> 35</span>
+stats<span class="token punctuation">:</span><span class="token function">RemoveModifier</span><span class="token punctuation">(</span>id<span class="token punctuation">)</span>
+<span class="token function">print</span><span class="token punctuation">(</span>stats<span class="token punctuation">:</span><span class="token function">Get</span><span class="token punctuation">(</span><span class="token string">"Damage"</span><span class="token punctuation">)</span><span class="token punctuation">)</span>   <span class="token comment">--> 25</span>
+</code></pre>
+</div></header><h2 class="anchor anchorWithStickyNavbar_LWe7" id="properties">Properties<a href="#properties" class="hash-link" aria-label="Direct link to Properties" title="Direct link to Properties">​</a></h2><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="Types"><code style="text-decoration:none">Types</code><a href="#Types" class="hash-link" aria-label="Direct link to Types" title="Direct link to Types">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/Vel136/Quantix/blob/master/docs/Quantix.lua#L100"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>Quantix<!-- -->.<!-- -->Types<!-- -->:<!-- --> </code> <code class="purple_ieR2">{</code><span><code>[</code><code class="blue_P4bS">string</code><code>]</code></span><code>: </code><code class="blue_P4bS">string</code><code class="purple_ieR2">}</code></div><div>
+<p>Table of all registered modifier type name constants.</p>
+<table>
+  <thead>
+    <tr>
+      <th>Key</th>
+      <th>Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>SetBase</code></td>
+      <td><code>"SetBase"</code></td>
+    </tr>
+    <tr>
+      <td><code>FlatAdd</code></td>
+      <td><code>"FlatAdd"</code></td>
+    </tr>
+    <tr>
+      <td><code>AddPercent</code></td>
+      <td><code>"AddPercent"</code></td>
+    </tr>
+    <tr>
+      <td><code>Multiply</code></td>
+      <td><code>"Multiply"</code></td>
+    </tr>
+    <tr>
+      <td><code>Override</code></td>
+      <td><code>"Override"</code></td>
+    </tr>
+    <tr>
+      <td><code>MinOverride</code></td>
+      <td><code>"MinOverride"</code></td>
+    </tr>
+    <tr>
+      <td><code>MaxOverride</code></td>
+      <td><code>"MaxOverride"</code></td>
+    </tr>
+    <tr>
+      <td><code>ClampMin</code></td>
+      <td><code>"ClampMin"</code></td>
+    </tr>
+    <tr>
+      <td><code>ClampMax</code></td>
+      <td><code>"ClampMax"</code></td>
+    </tr>
+    <tr>
+      <td><code>StackUnique</code></td>
+      <td><code>"StackUnique"</code></td>
+    </tr>
+    <tr>
+      <td><code>Lock</code></td>
+      <td><code>"Lock"</code></td>
+    </tr>
+    <tr>
+      <td><code>BehaviorReplace</code></td>
+      <td><code>"BehaviorReplace"</code></td>
+    </tr>
+    <tr>
+      <td><code>BehaviorOverride</code></td>
+      <td><code>"BehaviorOverride"</code></td>
+    </tr>
+    <tr>
+      <td><code>BehaviorDeepMerge</code></td>
+      <td><code>"BehaviorDeepMerge"</code></td>
+    </tr>
+    <tr>
+      <td><code>BehaviorHook</code></td>
+      <td><code>"BehaviorHook"</code></td>
+    </tr>
+    <tr>
+      <td><code>BehaviorExclusive</code></td>
+      <td><code>"BehaviorExclusive"</code></td>
+    </tr>
+  </tbody>
+</table>
+<pre class="language-lua"><code class="language-lua">stats<span class="token punctuation">:</span><span class="token function">AddModifier</span><span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token punctuation">...</span><span class="token punctuation">,</span> Type <span class="token operator">=</span> Quantix<span class="token punctuation">.</span>Types<span class="token punctuation">.</span>FlatAdd <span class="token punctuation">}</span><span class="token punctuation">)</span>
+</code></pre>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="Sources"><code style="text-decoration:none">Sources</code><a href="#Sources" class="hash-link" aria-label="Direct link to Sources" title="Direct link to Sources">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/Vel136/Quantix/blob/master/docs/Quantix.lua#L122"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>Quantix<!-- -->.<!-- -->Sources<!-- -->:<!-- --> </code> <code class="purple_ieR2">{</code><span><code>[</code><code class="blue_P4bS">string</code><code>]</code></span><code>: </code><code class="blue_P4bS">string</code><code class="purple_ieR2">}</code></div><div>
+<p>Built-in source category constants for tagging modifiers.</p>
+<table>
+  <thead>
+    <tr>
+      <th>Key</th>
+      <th>Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>Attachment</code></td>
+      <td><code>"Attachment"</code></td>
+    </tr>
+    <tr>
+      <td><code>Ammo</code></td>
+      <td><code>"Ammo"</code></td>
+    </tr>
+    <tr>
+      <td><code>Perk</code></td>
+      <td><code>"Perk"</code></td>
+    </tr>
+    <tr>
+      <td><code>State</code></td>
+      <td><code>"State"</code></td>
+    </tr>
+    <tr>
+      <td><code>System</code></td>
+      <td><code>"System"</code></td>
+    </tr>
+    <tr>
+      <td><code>Ballistics</code></td>
+      <td><code>"Ballistics"</code></td>
+    </tr>
+  </tbody>
+</table>
+<pre class="language-lua"><code class="language-lua">stats<span class="token punctuation">:</span><span class="token function">AddModifier</span><span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token punctuation">...</span><span class="token punctuation">,</span> Source <span class="token operator">=</span> Quantix<span class="token punctuation">.</span>Sources<span class="token punctuation">.</span>Attachment<span class="token punctuation">,</span> SourceId <span class="token operator">=</span> id <span class="token punctuation">}</span><span class="token punctuation">)</span>
+stats<span class="token punctuation">:</span><span class="token function">RemoveBySource</span><span class="token punctuation">(</span>Quantix<span class="token punctuation">.</span>Sources<span class="token punctuation">.</span>Attachment<span class="token punctuation">,</span> id<span class="token punctuation">)</span>
+</code></pre>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="Signals"><code style="text-decoration:none">Signals</code><a href="#Signals" class="hash-link" aria-label="Direct link to Signals" title="Direct link to Signals">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/Vel136/Quantix/blob/master/docs/Quantix.lua#L145"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>Quantix<!-- -->.<!-- -->Signals<!-- -->:<!-- --> </code> <code class="blue_P4bS">StatControllerSignals</code></div><div>
+<p>Lifecycle signals for this controller.</p>
+<table>
+  <thead>
+    <tr>
+      <th>Signal</th>
+      <th>Parameters</th>
+      <th>Fires when</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>OnStatChanged</code></td>
+      <td><code>statName: string, newValue: any, oldValue: any</code></td>
+      <td>A stat's final value changed</td>
+    </tr>
+    <tr>
+      <td><code>OnModifierAdded</code></td>
+      <td><code>modifier: Modifier</code></td>
+      <td>A modifier was added</td>
+    </tr>
+    <tr>
+      <td><code>OnModifierRemoved</code></td>
+      <td><code>modifierId: string</code></td>
+      <td>A modifier was removed</td>
+    </tr>
+    <tr>
+      <td><code>OnBatchEnd</code></td>
+      <td>(none)</td>
+      <td>A <code>Batch</code> completed</td>
+    </tr>
+  </tbody>
+</table>
+<pre class="language-lua"><code class="language-lua">stats<span class="token punctuation">.</span>Signals<span class="token punctuation">.</span>OnStatChanged<span class="token punctuation">:</span><span class="token function">Connect</span><span class="token punctuation">(</span><span class="token keyword">function</span><span class="token punctuation">(</span>statName<span class="token punctuation">,</span> newValue<span class="token punctuation">,</span> oldValue<span class="token punctuation">)</span>
+    <span class="token function">print</span><span class="token punctuation">(</span>statName<span class="token punctuation">,</span> oldValue<span class="token punctuation">,</span> <span class="token string">"→"</span><span class="token punctuation">,</span> newValue<span class="token punctuation">)</span>
+<span class="token keyword">end</span><span class="token punctuation">)</span>
+</code></pre>
+</div><h2 class="anchor anchorWithStickyNavbar_LWe7" id="functions">Functions<a href="#functions" class="hash-link" aria-label="Direct link to Functions" title="Direct link to Functions">​</a></h2><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="new"><code style="text-decoration:none">new</code><a href="#new" class="hash-link" aria-label="Direct link to new" title="Direct link to new">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/Vel136/Quantix/blob/master/docs/Quantix.lua#L67"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>Quantix<!-- -->.</code><code class="green_DgR4">new</code><code>(</code><div class="inset_uKQm"><div><code>data<!-- -->: </code><code class="blue_P4bS">table</code><span class="inlineDescription_G7Er">-- <span>
+<p>Weapon/entity data table. Pass <code>{}</code> to register stats manually.</p>
+</span></span></div></div><code>) → </code><code class="blue_P4bS">StatController</code></div><div>
+<p>
+  Creates a new <code>StatController</code>. Numeric leaf values in <code>data</code> are flattened
+  into dot-separated stat keys.
+</p>
+<pre class="language-lua"><code class="language-lua"><span class="token comment">-- Nested table → flat keys</span>
+<span class="token keyword">local</span> stats <span class="token operator">=</span> Quantix<span class="token punctuation">.</span><span class="token function">new</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+    Damage <span class="token operator">=</span> <span class="token number">25</span><span class="token punctuation">,</span>
+    Spread <span class="token operator">=</span> <span class="token punctuation">{</span> Base <span class="token operator">=</span> <span class="token number">1.5</span><span class="token punctuation">,</span> ADS <span class="token operator">=</span> <span class="token number">0.8</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span>
+<span class="token comment">-- stats:Get("Spread.Base") → 1.5</span>
+
+<span class="token comment">-- Manual registration</span>
+<span class="token keyword">local</span> stats <span class="token operator">=</span> Quantix<span class="token punctuation">.</span><span class="token function">new</span><span class="token punctuation">(</span><span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">)</span>
+stats<span class="token punctuation">:</span><span class="token function">SetBase</span><span class="token punctuation">(</span><span class="token string">"Damage"</span><span class="token punctuation">,</span> <span class="token number">25</span><span class="token punctuation">)</span>
+</code></pre>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="Get"><code style="text-decoration:none">Get</code><a href="#Get" class="hash-link" aria-label="Direct link to Get" title="Direct link to Get">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/Vel136/Quantix/blob/master/docs/Quantix.lua#L164"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>Quantix<!-- -->:</code><code class="green_DgR4">Get</code><code>(</code><div class="inset_uKQm"><div><code>statName<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
+<p>The stat key to evaluate.</p>
+</span></span></div></div><code>) → </code><code class="blue_P4bS">any</code><span class="inlineDescription_G7Er">-- <span>
+<p>The final value, or <code>nil</code> if the stat has no base.</p>
+</span></span></div><div>
+<p>
+  Returns the final evaluated value of a stat. Result is cached until the
+  stat is invalidated. Conditional stats are always re-evaluated.
+</p>
+<pre class="language-lua"><code class="language-lua"><span class="token function">print</span><span class="token punctuation">(</span>stats<span class="token punctuation">:</span><span class="token function">Get</span><span class="token punctuation">(</span><span class="token string">"Damage"</span><span class="token punctuation">)</span><span class="token punctuation">)</span>        <span class="token comment">--> 35</span>
+<span class="token function">print</span><span class="token punctuation">(</span>stats<span class="token punctuation">:</span><span class="token function">Get</span><span class="token punctuation">(</span><span class="token string">"Spread.Base"</span><span class="token punctuation">)</span><span class="token punctuation">)</span>   <span class="token comment">--> 1.5</span>
+</code></pre>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="GetBase"><code style="text-decoration:none">GetBase</code><a href="#GetBase" class="hash-link" aria-label="Direct link to GetBase" title="Direct link to GetBase">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/Vel136/Quantix/blob/master/docs/Quantix.lua#L179"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>Quantix<!-- -->:</code><code class="green_DgR4">GetBase</code><code>(</code><code>statName<!-- -->: </code><code class="blue_P4bS">string</code><code>) → </code><code class="blue_P4bS">any</code></div><div>
+<p>Returns the raw base value of a stat before any modifiers are applied.</p>
+<pre class="language-lua"><code class="language-lua"><span class="token function">print</span><span class="token punctuation">(</span>stats<span class="token punctuation">:</span><span class="token function">GetBase</span><span class="token punctuation">(</span><span class="token string">"Damage"</span><span class="token punctuation">)</span><span class="token punctuation">)</span>   <span class="token comment">--> 25</span>
+</code></pre>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="GetAll"><code style="text-decoration:none">GetAll</code><a href="#GetAll" class="hash-link" aria-label="Direct link to GetAll" title="Direct link to GetAll">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/Vel136/Quantix/blob/master/docs/Quantix.lua#L194"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>Quantix<!-- -->:</code><code class="green_DgR4">GetAll</code><code>(</code><code>) → </code><code class="purple_ieR2">{</code><span><code>[</code><code class="blue_P4bS">string</code><code>]</code></span><code>: </code><code class="blue_P4bS">any</code><code class="purple_ieR2">}</code></div><div>
+<p>Evaluates all registered stats and returns them as a <code>{ [statName]: value }</code> table.</p>
+<pre class="language-lua"><code class="language-lua"><span class="token keyword">local</span> all <span class="token operator">=</span> stats<span class="token punctuation">:</span><span class="token function">GetAll</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token function">print</span><span class="token punctuation">(</span>all<span class="token punctuation">[</span><span class="token string">"Damage"</span><span class="token punctuation">]</span><span class="token punctuation">,</span> all<span class="token punctuation">[</span><span class="token string">"Range"</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+</code></pre>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="GetGroup"><code style="text-decoration:none">GetGroup</code><a href="#GetGroup" class="hash-link" aria-label="Direct link to GetGroup" title="Direct link to GetGroup">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/Vel136/Quantix/blob/master/docs/Quantix.lua#L211"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>Quantix<!-- -->:</code><code class="green_DgR4">GetGroup</code><code>(</code><div class="inset_uKQm"><div><code>prefix<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
+<p>The dot-path prefix to filter by.</p>
+</span></span></div></div><code>) → </code><code class="purple_ieR2">{</code><span><code>[</code><code class="blue_P4bS">string</code><code>]</code></span><code>: </code><code class="blue_P4bS">any</code><code class="purple_ieR2">}</code></div><div>
+<p>Returns all stats whose keys start with <code>prefix.</code>, with the prefix stripped.</p>
+<pre class="language-lua"><code class="language-lua"><span class="token comment">-- Given stats: Spread.Base = 1.5, Spread.ADS = 0.8</span>
+<span class="token keyword">local</span> spread <span class="token operator">=</span> stats<span class="token punctuation">:</span><span class="token function">GetGroup</span><span class="token punctuation">(</span><span class="token string">"Spread"</span><span class="token punctuation">)</span>
+<span class="token function">print</span><span class="token punctuation">(</span>spread<span class="token punctuation">.</span>Base<span class="token punctuation">,</span> spread<span class="token punctuation">.</span>ADS<span class="token punctuation">)</span>   <span class="token comment">--> 1.5   0.8</span>
+</code></pre>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="AddModifier"><code style="text-decoration:none">AddModifier</code><a href="#AddModifier" class="hash-link" aria-label="Direct link to AddModifier" title="Direct link to AddModifier">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/Vel136/Quantix/blob/master/docs/Quantix.lua#L238"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>Quantix<!-- -->:</code><code class="green_DgR4">AddModifier</code><code>(</code><div class="inset_uKQm"><div><code>modifier<!-- -->: </code><code class="blue_P4bS">Modifier</code><span class="inlineDescription_G7Er">-- <span>
+<p>The modifier to add. <code>Id</code> is assigned automatically.</p>
+</span></span></div></div><code>) → </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
+<p>The auto-generated modifier ID.</p>
+</span></span></div><div>
+<p>
+  Adds a modifier to the controller. Returns the modifier's auto-generated ID,
+  which can be passed to <code>RemoveModifier</code> later.
+</p>
+<p>Required fields: <code>Stat</code>, <code>Type</code>, <code>Value</code>.</p>
+<pre class="language-lua"><code class="language-lua"><span class="token keyword">local</span> id <span class="token operator">=</span> stats<span class="token punctuation">:</span><span class="token function">AddModifier</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+    Stat      <span class="token operator">=</span> <span class="token string">"Damage"</span><span class="token punctuation">,</span>
+    Type      <span class="token operator">=</span> Quantix<span class="token punctuation">.</span>Types<span class="token punctuation">.</span>FlatAdd<span class="token punctuation">,</span>
+    Value     <span class="token operator">=</span> <span class="token number">10</span><span class="token punctuation">,</span>
+    Source    <span class="token operator">=</span> Quantix<span class="token punctuation">.</span>Sources<span class="token punctuation">.</span>Attachment<span class="token punctuation">,</span>
+    SourceId  <span class="token operator">=</span> attachment<span class="token punctuation">.</span>Id<span class="token punctuation">,</span>
+    Priority  <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span>
+</code></pre>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="RemoveModifier"><code style="text-decoration:none">RemoveModifier</code><a href="#RemoveModifier" class="hash-link" aria-label="Direct link to RemoveModifier" title="Direct link to RemoveModifier">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/Vel136/Quantix/blob/master/docs/Quantix.lua#L254"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>Quantix<!-- -->:</code><code class="green_DgR4">RemoveModifier</code><code>(</code><code>modifierId<!-- -->: </code><code class="blue_P4bS">string</code><code>) → </code><code class="blue_P4bS">boolean</code></div><div>
+<p>
+  Removes a modifier by its ID. Returns <code>true</code> if the modifier was found and
+  removed, <code>false</code> if it did not exist.
+</p>
+<pre class="language-lua"><code class="language-lua"><span class="token keyword">local</span> removed <span class="token operator">=</span> stats<span class="token punctuation">:</span><span class="token function">RemoveModifier</span><span class="token punctuation">(</span>id<span class="token punctuation">)</span>
+</code></pre>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="RemoveBySource"><code style="text-decoration:none">RemoveBySource</code><a href="#RemoveBySource" class="hash-link" aria-label="Direct link to RemoveBySource" title="Direct link to RemoveBySource">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/Vel136/Quantix/blob/master/docs/Quantix.lua#L275"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>Quantix<!-- -->:</code><code class="green_DgR4">RemoveBySource</code><code>(</code><div class="inset_uKQm"><div><code>source<!-- -->: </code><code class="blue_P4bS">string</code><code>,</code><span class="inlineDescription_G7Er">-- <span>
+<p>The source category to match.</p>
+</span></span></div><div><code>sourceId<!-- -->: </code><code class="purple_ieR2">(</code><code class="blue_P4bS">string</code><code class="op_lSLc"> | </code><code class="blue_P4bS">number</code><code class="purple_ieR2">)</code><code class="blue_P4bS">?</code><span class="inlineDescription_G7Er">-- <span>
+<p>Optional specific source instance to match.</p>
+</span></span></div></div><code>) → </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
+<p>The number of modifiers removed.</p>
+</span></span></div><div>
+<p>
+  Removes all modifiers with the given <code>Source</code> (and optionally <code>SourceId</code>).
+  Runs inside an implicit <code>Batch</code>. Returns the number of modifiers removed.
+</p>
+<pre class="language-lua"><code class="language-lua"><span class="token comment">-- Remove all modifiers from any attachment with this ID</span>
+stats<span class="token punctuation">:</span><span class="token function">RemoveBySource</span><span class="token punctuation">(</span>Quantix<span class="token punctuation">.</span>Sources<span class="token punctuation">.</span>Attachment<span class="token punctuation">,</span> attachment<span class="token punctuation">.</span>Id<span class="token punctuation">)</span>
+
+<span class="token comment">-- Remove all Perk modifiers regardless of SourceId</span>
+stats<span class="token punctuation">:</span><span class="token function">RemoveBySource</span><span class="token punctuation">(</span>Quantix<span class="token punctuation">.</span>Sources<span class="token punctuation">.</span>Perk<span class="token punctuation">)</span>
+</code></pre>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="ReplaceBySource"><code style="text-decoration:none">ReplaceBySource</code><a href="#ReplaceBySource" class="hash-link" aria-label="Direct link to ReplaceBySource" title="Direct link to ReplaceBySource">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/Vel136/Quantix/blob/master/docs/Quantix.lua#L297"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>Quantix<!-- -->:</code><code class="green_DgR4">ReplaceBySource</code><code>(</code><div class="inset_uKQm"><div><code>source<!-- -->: </code><code class="blue_P4bS">string</code><code>,</code></div><div><code>sourceId<!-- -->: </code><code class="purple_ieR2">(</code><code class="blue_P4bS">string</code><code class="op_lSLc"> | </code><code class="blue_P4bS">number</code><code class="purple_ieR2">)</code><code class="blue_P4bS">?</code><code>,</code></div><div><code>newModifiers<!-- -->: </code><code class="purple_ieR2">{</code><code class="blue_P4bS">Modifier</code><code class="purple_ieR2">}</code></div></div><code>) → </code><code class="purple_ieR2">{</code><code class="blue_P4bS">string</code><code class="purple_ieR2">}</code><span class="inlineDescription_G7Er">-- <span>
+<p>IDs of the newly added modifiers.</p>
+</span></span></div><div>
+<p>
+  Removes all modifiers matching <code>source</code>/<code>sourceId</code>, then adds <code>newModifiers</code>
+  atomically inside a single <code>Batch</code>. Returns a list of the new modifier IDs.
+</p>
+<pre class="language-lua"><code class="language-lua"><span class="token keyword">local</span> ids <span class="token operator">=</span> stats<span class="token punctuation">:</span><span class="token function">ReplaceBySource</span><span class="token punctuation">(</span>
+    Quantix<span class="token punctuation">.</span>Sources<span class="token punctuation">.</span>Attachment<span class="token punctuation">,</span>
+    old<span class="token punctuation">.</span>Id<span class="token punctuation">,</span>
+    newAttachment<span class="token punctuation">.</span>Modifiers
+<span class="token punctuation">)</span>
+</code></pre>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="ClearAll"><code style="text-decoration:none">ClearAll</code><a href="#ClearAll" class="hash-link" aria-label="Direct link to ClearAll" title="Direct link to ClearAll">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/Vel136/Quantix/blob/master/docs/Quantix.lua#L309"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>Quantix<!-- -->:</code><code class="green_DgR4">ClearAll</code><code>(</code><code>) → </code><code>(</code><code>)</code></div><div>
+<p>Removes every active modifier. Runs inside an implicit <code>Batch</code>.</p>
+<pre class="language-lua"><code class="language-lua">stats<span class="token punctuation">:</span><span class="token function">ClearAll</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+</code></pre>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="SetBase"><code style="text-decoration:none">SetBase</code><a href="#SetBase" class="hash-link" aria-label="Direct link to SetBase" title="Direct link to SetBase">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/Vel136/Quantix/blob/master/docs/Quantix.lua#L327"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>Quantix<!-- -->:</code><code class="green_DgR4">SetBase</code><code>(</code><div class="inset_uKQm"><div><code>statName<!-- -->: </code><code class="blue_P4bS">string</code><code>,</code></div><div><code>value<!-- -->: </code><code class="blue_P4bS">any</code><span class="inlineDescription_G7Er">-- <span>
+<p>New base value (number or table).</p>
+</span></span></div></div><code>) → </code><code>(</code><code>)</code></div><div>
+<p>
+  Sets or updates the base value of a stat. Fires <code>OnStatChanged</code> if the
+  final evaluated value changes.
+</p>
+<pre class="language-lua"><code class="language-lua">stats<span class="token punctuation">:</span><span class="token function">SetBase</span><span class="token punctuation">(</span><span class="token string">"Damage"</span><span class="token punctuation">,</span> <span class="token number">30</span><span class="token punctuation">)</span>
+</code></pre>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="RegisterBehavior"><code style="text-decoration:none">RegisterBehavior</code><a href="#RegisterBehavior" class="hash-link" aria-label="Direct link to RegisterBehavior" title="Direct link to RegisterBehavior">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/Vel136/Quantix/blob/master/docs/Quantix.lua#L346"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>Quantix<!-- -->:</code><code class="green_DgR4">RegisterBehavior</code><code>(</code><div class="inset_uKQm"><div><code>behaviorKey<!-- -->: </code><code class="blue_P4bS">string</code><code>,</code><span class="inlineDescription_G7Er">-- <span>
+<p>Unique key for this behavior, used as the <code>Stat</code> field in modifiers.</p>
+</span></span></div><div><code>baseBehavior<!-- -->: </code><code class="blue_P4bS">table</code><span class="inlineDescription_G7Er">-- <span>
+<p>The unmodified base behavior definition.</p>
+</span></span></div></div><code>) → </code><code>(</code><code>)</code></div><div>
+<p>
+  Registers a base behavior table under a key so that behavior modifiers can
+  be applied to it via <code>AddModifier</code>. Call once during setup.
+</p>
+<pre class="language-lua"><code class="language-lua">stats<span class="token punctuation">:</span><span class="token function">RegisterBehavior</span><span class="token punctuation">(</span><span class="token string">"Bullet"</span><span class="token punctuation">,</span> <span class="token punctuation">{</span>
+    MaxPenetrations <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">,</span>
+    Gravity         <span class="token operator">=</span> <span class="token number">9.81</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span>
+</code></pre>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="Evaluate"><code style="text-decoration:none">Evaluate</code><a href="#Evaluate" class="hash-link" aria-label="Direct link to Evaluate" title="Direct link to Evaluate">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/Vel136/Quantix/blob/master/docs/Quantix.lua#L372"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>Quantix<!-- -->:</code><code class="green_DgR4">Evaluate</code><code>(</code><div class="inset_uKQm"><div><code>behaviorKey<!-- -->: </code><code class="blue_P4bS">string</code><code>,</code><span class="inlineDescription_G7Er">-- <span>
+<p>The behavior key (must be registered via <code>RegisterBehavior</code>).</p>
+</span></span></div><div><code>baseBehavior<!-- -->: </code><code class="blue_P4bS">table</code><span class="inlineDescription_G7Er">-- <span>
+<p>Fallback if no modifiers have been applied yet.</p>
+</span></span></div></div><code>) → </code><code>(</code><div class="inset_uKQm"><div><code class="blue_P4bS">table</code><code>,</code><span class="inlineDescription_G7Er">-- <span>
+<p>The final merged behavior table.</p>
+</span></span></div><div><code class="blue_P4bS">table</code><span class="inlineDescription_G7Er">-- <span>
+<p>Hooks table: <code>{ [eventName] = { fn, ... } }</code>.</p>
+</span></span></div></div><code>)</code></div><div>
+<p>
+  Evaluates behavior modifiers for <code>behaviorKey</code> and returns the merged
+  behavior table and collected hooks.
+</p>
+<pre class="language-lua"><code class="language-lua"><span class="token keyword">local</span> behavior<span class="token punctuation">,</span> hooks <span class="token operator">=</span> stats<span class="token punctuation">:</span><span class="token function">Evaluate</span><span class="token punctuation">(</span><span class="token string">"Bullet"</span><span class="token punctuation">,</span> baseBehavior<span class="token punctuation">)</span>
+<span class="token comment">-- behavior: merged table (no _Hooks key)</span>
+<span class="token comment">-- hooks: { [eventName] = { fn, fn, ... } }</span>
+
+<span class="token keyword">for</span> _<span class="token punctuation">,</span> fn <span class="token keyword">in</span> hooks<span class="token punctuation">.</span>OnPierce <span class="token keyword">or</span> <span class="token punctuation">{</span><span class="token punctuation">}</span> <span class="token keyword">do</span>
+    <span class="token function">fn</span><span class="token punctuation">(</span>ctx<span class="token punctuation">,</span> result<span class="token punctuation">,</span> velocity<span class="token punctuation">)</span>
+<span class="token keyword">end</span>
+</code></pre>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="Batch"><code style="text-decoration:none">Batch</code><a href="#Batch" class="hash-link" aria-label="Direct link to Batch" title="Direct link to Batch">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/Vel136/Quantix/blob/master/docs/Quantix.lua#L392"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>Quantix<!-- -->:</code><code class="green_DgR4">Batch</code><code>(</code><code>) → </code><code>(</code><code>)</code></div><div>
+<p>
+  Runs <code>fn</code> inside a batch. All <code>OnStatChanged</code>, <code>OnModifierAdded</code>, and
+  <code>OnModifierRemoved</code> signals are deferred until <code>fn</code> returns, then fired
+  once per changed stat. <code>OnBatchEnd</code> fires last.
+</p>
+<pre class="language-lua"><code class="language-lua">stats<span class="token punctuation">:</span><span class="token function">Batch</span><span class="token punctuation">(</span><span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    stats<span class="token punctuation">:</span><span class="token function">RemoveBySource</span><span class="token punctuation">(</span>Quantix<span class="token punctuation">.</span>Sources<span class="token punctuation">.</span>Attachment<span class="token punctuation">,</span> id<span class="token punctuation">)</span>
+    stats<span class="token punctuation">:</span><span class="token function">AddModifier</span><span class="token punctuation">(</span><span class="token punctuation">{</span> Stat <span class="token operator">=</span> <span class="token string">"Damage"</span><span class="token punctuation">,</span> Type <span class="token operator">=</span> <span class="token string">"FlatAdd"</span><span class="token punctuation">,</span>  Value <span class="token operator">=</span> <span class="token number">8</span><span class="token punctuation">,</span>   Source <span class="token operator">=</span> <span class="token string">"Attachment"</span><span class="token punctuation">,</span> SourceId <span class="token operator">=</span> id <span class="token punctuation">}</span><span class="token punctuation">)</span>
+    stats<span class="token punctuation">:</span><span class="token function">AddModifier</span><span class="token punctuation">(</span><span class="token punctuation">{</span> Stat <span class="token operator">=</span> <span class="token string">"Range"</span><span class="token punctuation">,</span>  Type <span class="token operator">=</span> <span class="token string">"Multiply"</span><span class="token punctuation">,</span> Value <span class="token operator">=</span> <span class="token number">0.1</span><span class="token punctuation">,</span> Source <span class="token operator">=</span> <span class="token string">"Attachment"</span><span class="token punctuation">,</span> SourceId <span class="token operator">=</span> id <span class="token punctuation">}</span><span class="token punctuation">)</span>
+<span class="token keyword">end</span><span class="token punctuation">)</span>
+</code></pre>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="BeginBatch"><code style="text-decoration:none">BeginBatch</code><a href="#BeginBatch" class="hash-link" aria-label="Direct link to BeginBatch" title="Direct link to BeginBatch">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/Vel136/Quantix/blob/master/docs/Quantix.lua#L406"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>Quantix<!-- -->:</code><code class="green_DgR4">BeginBatch</code><code>(</code><code>) → </code><code>(</code><code>)</code></div><div>
+<p>Manually begins a batch. Prefer <code>Batch</code> for automatic error handling.</p>
+<pre class="language-lua"><code class="language-lua">stats<span class="token punctuation">:</span><span class="token function">BeginBatch</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token comment">-- ... modifier changes ...</span>
+stats<span class="token punctuation">:</span><span class="token function">EndBatch</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+</code></pre>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="EndBatch"><code style="text-decoration:none">EndBatch</code><a href="#EndBatch" class="hash-link" aria-label="Direct link to EndBatch" title="Direct link to EndBatch">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/Vel136/Quantix/blob/master/docs/Quantix.lua#L414"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>Quantix<!-- -->:</code><code class="green_DgR4">EndBatch</code><code>(</code><code>) → </code><code>(</code><code>)</code></div><div>
+<p>Ends the active batch, flushing deferred signals.</p>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="GetModifiersForStat"><code style="text-decoration:none">GetModifiersForStat</code><a href="#GetModifiersForStat" class="hash-link" aria-label="Direct link to GetModifiersForStat" title="Direct link to GetModifiersForStat">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/Vel136/Quantix/blob/master/docs/Quantix.lua#L433"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>Quantix<!-- -->:</code><code class="green_DgR4">GetModifiersForStat</code><code>(</code><code>statName<!-- -->: </code><code class="blue_P4bS">string</code><code>) → </code><code class="purple_ieR2">{</code><code class="blue_P4bS">Modifier</code><code class="purple_ieR2">}</code></div><div>
+<p>Returns all active modifiers registered for <code>statName</code>.</p>
+<pre class="language-lua"><code class="language-lua"><span class="token keyword">for</span> _<span class="token punctuation">,</span> mod <span class="token keyword">in</span> stats<span class="token punctuation">:</span><span class="token function">GetModifiersForStat</span><span class="token punctuation">(</span><span class="token string">"Damage"</span><span class="token punctuation">)</span> <span class="token keyword">do</span>
+    <span class="token function">print</span><span class="token punctuation">(</span>mod<span class="token punctuation">.</span>Id<span class="token punctuation">,</span> mod<span class="token punctuation">.</span>Type<span class="token punctuation">,</span> mod<span class="token punctuation">.</span>Value<span class="token punctuation">)</span>
+<span class="token keyword">end</span>
+</code></pre>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="GetModifiers"><code style="text-decoration:none">GetModifiers</code><a href="#GetModifiers" class="hash-link" aria-label="Direct link to GetModifiers" title="Direct link to GetModifiers">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/Vel136/Quantix/blob/master/docs/Quantix.lua#L443"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>Quantix<!-- -->:</code><code class="green_DgR4">GetModifiers</code><code>(</code><code>) → </code><code class="purple_ieR2">{</code><code class="blue_P4bS">Modifier</code><code class="purple_ieR2">}</code></div><div>
+<p>Returns all active modifiers across all stats.</p>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="GetModifierById"><code style="text-decoration:none">GetModifierById</code><a href="#GetModifierById" class="hash-link" aria-label="Direct link to GetModifierById" title="Direct link to GetModifierById">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/Vel136/Quantix/blob/master/docs/Quantix.lua#L454"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>Quantix<!-- -->:</code><code class="green_DgR4">GetModifierById</code><code>(</code><code>modifierId<!-- -->: </code><code class="blue_P4bS">string</code><code>) → </code><code class="blue_P4bS">Modifier?</code></div><div>
+<p>Returns the modifier with the given ID, or <code>nil</code> if it does not exist.</p>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="Trace"><code style="text-decoration:none">Trace</code><a href="#Trace" class="hash-link" aria-label="Direct link to Trace" title="Direct link to Trace">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/Vel136/Quantix/blob/master/docs/Quantix.lua#L480"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>Quantix<!-- -->:</code><code class="green_DgR4">Trace</code><code>(</code><code>statName<!-- -->: </code><code class="blue_P4bS">string</code><code>) → </code><code class="blue_P4bS">string</code></div><div>
+<p>
+  Returns a formatted multi-line string showing the full evaluation pipeline
+  for <code>statName</code>: base value, all active modifiers, per-phase accumulators,
+  and final result. Skipped (condition-failed) modifiers are listed separately.
+</p>
+<pre class="language-lua"><code class="language-lua"><span class="token function">print</span><span class="token punctuation">(</span>stats<span class="token punctuation">:</span><span class="token function">Trace</span><span class="token punctuation">(</span><span class="token string">"Damage"</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token comment">-- Stat:  Damage</span>
+<span class="token comment">-- Base:  25</span>
+<span class="token comment">-- Active modifiers: 2</span>
+<span class="token comment">--   [FlatAdd] Attachment/  value=10  priority=0</span>
+<span class="token comment">-- Phase [FlatAdd]:</span>
+<span class="token comment">--   FlatAdd: { sum=10 }</span>
+<span class="token comment">-- = Final: 35</span>
+</code></pre>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="DebugDump"><code style="text-decoration:none">DebugDump</code><a href="#DebugDump" class="hash-link" aria-label="Direct link to DebugDump" title="Direct link to DebugDump">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/Vel136/Quantix/blob/master/docs/Quantix.lua#L493"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>Quantix<!-- -->:</code><code class="green_DgR4">DebugDump</code><code>(</code><code>) → </code><code>(</code><code>)</code></div><div>
+<p>
+  Prints a full dump of all registered stats and active modifiers to the
+  Roblox console. Useful for in-editor inspection.
+</p>
+<pre class="language-lua"><code class="language-lua">stats<span class="token punctuation">:</span><span class="token function">DebugDump</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+</code></pre>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="Destroy"><code style="text-decoration:none">Destroy</code><a href="#Destroy" class="hash-link" aria-label="Direct link to Destroy" title="Direct link to Destroy">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/Vel136/Quantix/blob/master/docs/Quantix.lua#L508"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>Quantix<!-- -->:</code><code class="green_DgR4">Destroy</code><code>(</code><code>) → </code><code>(</code><code>)</code></div><div>
+<p>
+  Destroys the controller. Disconnects all signals and clears all internal
+  state. Always call this when the owning entity (weapon, character) is removed.
+</p>
+<pre class="language-lua"><code class="language-lua">stats<span class="token punctuation">:</span><span class="token function">Destroy</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+</code></pre>
+</div></div></article></div><details><summary>Show raw api</summary><pre style="max-width:100%;white-space:pre-wrap">{
+    &quot;functions&quot;: [
+        {
+            &quot;name&quot;: &quot;new&quot;,
+            &quot;desc&quot;: &quot;Creates a new `StatController`. Numeric leaf values in `data` are flattened\ninto dot-separated stat keys.\n\n```lua\n-- Nested table → flat keys\nlocal stats = Quantix.new({\n    Damage = 25,\n    Spread = { Base = 1.5, ADS = 0.8 },\n})\n-- stats:Get(\&quot;Spread.Base\&quot;) → 1.5\n\n-- Manual registration\nlocal stats = Quantix.new({})\nstats:SetBase(\&quot;Damage\&quot;, 25)\n```&quot;,
+            &quot;params&quot;: [
+                {
+                    &quot;name&quot;: &quot;data&quot;,
+                    &quot;desc&quot;: &quot;Weapon/entity data table. Pass `{}` to register stats manually.&quot;,
+                    &quot;lua_type&quot;: &quot;table&quot;
+                }
+            ],
+            &quot;returns&quot;: [
+                {
+                    &quot;desc&quot;: &quot;&quot;,
+                    &quot;lua_type&quot;: &quot;StatController&quot;
+                }
+            ],
+            &quot;function_type&quot;: &quot;static&quot;,
+            &quot;source&quot;: {
+                &quot;line&quot;: 67,
+                &quot;path&quot;: &quot;docs/Quantix.lua&quot;
+            }
+        },
+        {
+            &quot;name&quot;: &quot;Get&quot;,
+            &quot;desc&quot;: &quot;Returns the final evaluated value of a stat. Result is cached until the\nstat is invalidated. Conditional stats are always re-evaluated.\n\n```lua\nprint(stats:Get(\&quot;Damage\&quot;))        --&gt; 35\nprint(stats:Get(\&quot;Spread.Base\&quot;))   --&gt; 1.5\n```&quot;,
+            &quot;params&quot;: [
+                {
+                    &quot;name&quot;: &quot;statName&quot;,
+                    &quot;desc&quot;: &quot;The stat key to evaluate.&quot;,
+                    &quot;lua_type&quot;: &quot;string&quot;
+                }
+            ],
+            &quot;returns&quot;: [
+                {
+                    &quot;desc&quot;: &quot;The final value, or `nil` if the stat has no base.&quot;,
+                    &quot;lua_type&quot;: &quot;any&quot;
+                }
+            ],
+            &quot;function_type&quot;: &quot;method&quot;,
+            &quot;source&quot;: {
+                &quot;line&quot;: 164,
+                &quot;path&quot;: &quot;docs/Quantix.lua&quot;
+            }
+        },
+        {
+            &quot;name&quot;: &quot;GetBase&quot;,
+            &quot;desc&quot;: &quot;Returns the raw base value of a stat before any modifiers are applied.\n\n```lua\nprint(stats:GetBase(\&quot;Damage\&quot;))   --&gt; 25\n```&quot;,
+            &quot;params&quot;: [
+                {
+                    &quot;name&quot;: &quot;statName&quot;,
+                    &quot;desc&quot;: &quot;&quot;,
+                    &quot;lua_type&quot;: &quot;string&quot;
+                }
+            ],
+            &quot;returns&quot;: [
+                {
+                    &quot;desc&quot;: &quot;&quot;,
+                    &quot;lua_type&quot;: &quot;any&quot;
+                }
+            ],
+            &quot;function_type&quot;: &quot;method&quot;,
+            &quot;source&quot;: {
+                &quot;line&quot;: 179,
+                &quot;path&quot;: &quot;docs/Quantix.lua&quot;
+            }
+        },
+        {
+            &quot;name&quot;: &quot;GetAll&quot;,
+            &quot;desc&quot;: &quot;Evaluates all registered stats and returns them as a `{ [statName]: value }` table.\n\n```lua\nlocal all = stats:GetAll()\nprint(all[\&quot;Damage\&quot;], all[\&quot;Range\&quot;])\n```&quot;,
+            &quot;params&quot;: [],
+            &quot;returns&quot;: [
+                {
+                    &quot;desc&quot;: &quot;&quot;,
+                    &quot;lua_type&quot;: &quot;{ [string]: any }&quot;
+                }
+            ],
+            &quot;function_type&quot;: &quot;method&quot;,
+            &quot;source&quot;: {
+                &quot;line&quot;: 194,
+                &quot;path&quot;: &quot;docs/Quantix.lua&quot;
+            }
+        },
+        {
+            &quot;name&quot;: &quot;GetGroup&quot;,
+            &quot;desc&quot;: &quot;Returns all stats whose keys start with `prefix.`, with the prefix stripped.\n\n```lua\n-- Given stats: Spread.Base = 1.5, Spread.ADS = 0.8\nlocal spread = stats:GetGroup(\&quot;Spread\&quot;)\nprint(spread.Base, spread.ADS)   --&gt; 1.5   0.8\n```&quot;,
+            &quot;params&quot;: [
+                {
+                    &quot;name&quot;: &quot;prefix&quot;,
+                    &quot;desc&quot;: &quot;The dot-path prefix to filter by.&quot;,
+                    &quot;lua_type&quot;: &quot;string&quot;
+                }
+            ],
+            &quot;returns&quot;: [
+                {
+                    &quot;desc&quot;: &quot;&quot;,
+                    &quot;lua_type&quot;: &quot;{ [string]: any }&quot;
+                }
+            ],
+            &quot;function_type&quot;: &quot;method&quot;,
+            &quot;source&quot;: {
+                &quot;line&quot;: 211,
+                &quot;path&quot;: &quot;docs/Quantix.lua&quot;
+            }
+        },
+        {
+            &quot;name&quot;: &quot;AddModifier&quot;,
+            &quot;desc&quot;: &quot;Adds a modifier to the controller. Returns the modifier&#x27;s auto-generated ID,\nwhich can be passed to `RemoveModifier` later.\n\nRequired fields: `Stat`, `Type`, `Value`.\n\n```lua\nlocal id = stats:AddModifier({\n    Stat      = \&quot;Damage\&quot;,\n    Type      = Quantix.Types.FlatAdd,\n    Value     = 10,\n    Source    = Quantix.Sources.Attachment,\n    SourceId  = attachment.Id,\n    Priority  = 0,\n})\n```&quot;,
+            &quot;params&quot;: [
+                {
+                    &quot;name&quot;: &quot;modifier&quot;,
+                    &quot;desc&quot;: &quot;The modifier to add. `Id` is assigned automatically.&quot;,
+                    &quot;lua_type&quot;: &quot;Modifier&quot;
+                }
+            ],
+            &quot;returns&quot;: [
+                {
+                    &quot;desc&quot;: &quot;The auto-generated modifier ID.&quot;,
+                    &quot;lua_type&quot;: &quot;string&quot;
+                }
+            ],
+            &quot;function_type&quot;: &quot;method&quot;,
+            &quot;source&quot;: {
+                &quot;line&quot;: 238,
+                &quot;path&quot;: &quot;docs/Quantix.lua&quot;
+            }
+        },
+        {
+            &quot;name&quot;: &quot;RemoveModifier&quot;,
+            &quot;desc&quot;: &quot;Removes a modifier by its ID. Returns `true` if the modifier was found and\nremoved, `false` if it did not exist.\n\n```lua\nlocal removed = stats:RemoveModifier(id)\n```&quot;,
+            &quot;params&quot;: [
+                {
+                    &quot;name&quot;: &quot;modifierId&quot;,
+                    &quot;desc&quot;: &quot;&quot;,
+                    &quot;lua_type&quot;: &quot;string&quot;
+                }
+            ],
+            &quot;returns&quot;: [
+                {
+                    &quot;desc&quot;: &quot;&quot;,
+                    &quot;lua_type&quot;: &quot;boolean&quot;
+                }
+            ],
+            &quot;function_type&quot;: &quot;method&quot;,
+            &quot;source&quot;: {
+                &quot;line&quot;: 254,
+                &quot;path&quot;: &quot;docs/Quantix.lua&quot;
+            }
+        },
+        {
+            &quot;name&quot;: &quot;RemoveBySource&quot;,
+            &quot;desc&quot;: &quot;Removes all modifiers with the given `Source` (and optionally `SourceId`).\nRuns inside an implicit `Batch`. Returns the number of modifiers removed.\n\n```lua\n-- Remove all modifiers from any attachment with this ID\nstats:RemoveBySource(Quantix.Sources.Attachment, attachment.Id)\n\n-- Remove all Perk modifiers regardless of SourceId\nstats:RemoveBySource(Quantix.Sources.Perk)\n```&quot;,
+            &quot;params&quot;: [
+                {
+                    &quot;name&quot;: &quot;source&quot;,
+                    &quot;desc&quot;: &quot;The source category to match.&quot;,
+                    &quot;lua_type&quot;: &quot;string&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;sourceId&quot;,
+                    &quot;desc&quot;: &quot;Optional specific source instance to match.&quot;,
+                    &quot;lua_type&quot;: &quot;(string | number)?&quot;
+                }
+            ],
+            &quot;returns&quot;: [
+                {
+                    &quot;desc&quot;: &quot;The number of modifiers removed.&quot;,
+                    &quot;lua_type&quot;: &quot;number&quot;
+                }
+            ],
+            &quot;function_type&quot;: &quot;method&quot;,
+            &quot;source&quot;: {
+                &quot;line&quot;: 275,
+                &quot;path&quot;: &quot;docs/Quantix.lua&quot;
+            }
+        },
+        {
+            &quot;name&quot;: &quot;ReplaceBySource&quot;,
+            &quot;desc&quot;: &quot;Removes all modifiers matching `source`/`sourceId`, then adds `newModifiers`\natomically inside a single `Batch`. Returns a list of the new modifier IDs.\n\n```lua\nlocal ids = stats:ReplaceBySource(\n    Quantix.Sources.Attachment,\n    old.Id,\n    newAttachment.Modifiers\n)\n```&quot;,
+            &quot;params&quot;: [
+                {
+                    &quot;name&quot;: &quot;source&quot;,
+                    &quot;desc&quot;: &quot;&quot;,
+                    &quot;lua_type&quot;: &quot;string&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;sourceId&quot;,
+                    &quot;desc&quot;: &quot;&quot;,
+                    &quot;lua_type&quot;: &quot;(string | number)?&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;newModifiers&quot;,
+                    &quot;desc&quot;: &quot;&quot;,
+                    &quot;lua_type&quot;: &quot;{ Modifier }&quot;
+                }
+            ],
+            &quot;returns&quot;: [
+                {
+                    &quot;desc&quot;: &quot;IDs of the newly added modifiers.&quot;,
+                    &quot;lua_type&quot;: &quot;{ string }&quot;
+                }
+            ],
+            &quot;function_type&quot;: &quot;method&quot;,
+            &quot;source&quot;: {
+                &quot;line&quot;: 297,
+                &quot;path&quot;: &quot;docs/Quantix.lua&quot;
+            }
+        },
+        {
+            &quot;name&quot;: &quot;ClearAll&quot;,
+            &quot;desc&quot;: &quot;Removes every active modifier. Runs inside an implicit `Batch`.\n\n```lua\nstats:ClearAll()\n```&quot;,
+            &quot;params&quot;: [],
+            &quot;returns&quot;: [],
+            &quot;function_type&quot;: &quot;method&quot;,
+            &quot;source&quot;: {
+                &quot;line&quot;: 309,
+                &quot;path&quot;: &quot;docs/Quantix.lua&quot;
+            }
+        },
+        {
+            &quot;name&quot;: &quot;SetBase&quot;,
+            &quot;desc&quot;: &quot;Sets or updates the base value of a stat. Fires `OnStatChanged` if the\nfinal evaluated value changes.\n\n```lua\nstats:SetBase(\&quot;Damage\&quot;, 30)\n```&quot;,
+            &quot;params&quot;: [
+                {
+                    &quot;name&quot;: &quot;statName&quot;,
+                    &quot;desc&quot;: &quot;&quot;,
+                    &quot;lua_type&quot;: &quot;string&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;value&quot;,
+                    &quot;desc&quot;: &quot;New base value (number or table).&quot;,
+                    &quot;lua_type&quot;: &quot;any&quot;
+                }
+            ],
+            &quot;returns&quot;: [],
+            &quot;function_type&quot;: &quot;method&quot;,
+            &quot;source&quot;: {
+                &quot;line&quot;: 327,
+                &quot;path&quot;: &quot;docs/Quantix.lua&quot;
+            }
+        },
+        {
+            &quot;name&quot;: &quot;RegisterBehavior&quot;,
+            &quot;desc&quot;: &quot;Registers a base behavior table under a key so that behavior modifiers can\nbe applied to it via `AddModifier`. Call once during setup.\n\n```lua\nstats:RegisterBehavior(\&quot;Bullet\&quot;, {\n    MaxPenetrations = 1,\n    Gravity         = 9.81,\n})\n```&quot;,
+            &quot;params&quot;: [
+                {
+                    &quot;name&quot;: &quot;behaviorKey&quot;,
+                    &quot;desc&quot;: &quot;Unique key for this behavior, used as the `Stat` field in modifiers.&quot;,
+                    &quot;lua_type&quot;: &quot;string&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;baseBehavior&quot;,
+                    &quot;desc&quot;: &quot;The unmodified base behavior definition.&quot;,
+                    &quot;lua_type&quot;: &quot;table&quot;
+                }
+            ],
+            &quot;returns&quot;: [],
+            &quot;function_type&quot;: &quot;method&quot;,
+            &quot;source&quot;: {
+                &quot;line&quot;: 346,
+                &quot;path&quot;: &quot;docs/Quantix.lua&quot;
+            }
+        },
+        {
+            &quot;name&quot;: &quot;Evaluate&quot;,
+            &quot;desc&quot;: &quot;Evaluates behavior modifiers for `behaviorKey` and returns the merged\nbehavior table and collected hooks.\n\n```lua\nlocal behavior, hooks = stats:Evaluate(\&quot;Bullet\&quot;, baseBehavior)\n-- behavior: merged table (no _Hooks key)\n-- hooks: { [eventName] = { fn, fn, ... } }\n\nfor _, fn in hooks.OnPierce or {} do\n    fn(ctx, result, velocity)\nend\n```&quot;,
+            &quot;params&quot;: [
+                {
+                    &quot;name&quot;: &quot;behaviorKey&quot;,
+                    &quot;desc&quot;: &quot;The behavior key (must be registered via `RegisterBehavior`).&quot;,
+                    &quot;lua_type&quot;: &quot;string&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;baseBehavior&quot;,
+                    &quot;desc&quot;: &quot;Fallback if no modifiers have been applied yet.&quot;,
+                    &quot;lua_type&quot;: &quot;table&quot;
+                }
+            ],
+            &quot;returns&quot;: [
+                {
+                    &quot;desc&quot;: &quot;The final merged behavior table.&quot;,
+                    &quot;lua_type&quot;: &quot;table&quot;
+                },
+                {
+                    &quot;desc&quot;: &quot;Hooks table: `{ [eventName] = { fn, ... } }`.&quot;,
+                    &quot;lua_type&quot;: &quot;table&quot;
+                }
+            ],
+            &quot;function_type&quot;: &quot;method&quot;,
+            &quot;source&quot;: {
+                &quot;line&quot;: 372,
+                &quot;path&quot;: &quot;docs/Quantix.lua&quot;
+            }
+        },
+        {
+            &quot;name&quot;: &quot;Batch&quot;,
+            &quot;desc&quot;: &quot;Runs `fn` inside a batch. All `OnStatChanged`, `OnModifierAdded`, and\n`OnModifierRemoved` signals are deferred until `fn` returns, then fired\nonce per changed stat. `OnBatchEnd` fires last.\n\n```lua\nstats:Batch(function()\n    stats:RemoveBySource(Quantix.Sources.Attachment, id)\n    stats:AddModifier({ Stat = \&quot;Damage\&quot;, Type = \&quot;FlatAdd\&quot;,  Value = 8,   Source = \&quot;Attachment\&quot;, SourceId = id })\n    stats:AddModifier({ Stat = \&quot;Range\&quot;,  Type = \&quot;Multiply\&quot;, Value = 0.1, Source = \&quot;Attachment\&quot;, SourceId = id })\nend)\n```&quot;,
+            &quot;params&quot;: [],
+            &quot;returns&quot;: [],
+            &quot;function_type&quot;: &quot;method&quot;,
+            &quot;source&quot;: {
+                &quot;line&quot;: 392,
+                &quot;path&quot;: &quot;docs/Quantix.lua&quot;
+            }
+        },
+        {
+            &quot;name&quot;: &quot;BeginBatch&quot;,
+            &quot;desc&quot;: &quot;Manually begins a batch. Prefer `Batch` for automatic error handling.\n\n```lua\nstats:BeginBatch()\n-- ... modifier changes ...\nstats:EndBatch()\n```&quot;,
+            &quot;params&quot;: [],
+            &quot;returns&quot;: [],
+            &quot;function_type&quot;: &quot;method&quot;,
+            &quot;source&quot;: {
+                &quot;line&quot;: 406,
+                &quot;path&quot;: &quot;docs/Quantix.lua&quot;
+            }
+        },
+        {
+            &quot;name&quot;: &quot;EndBatch&quot;,
+            &quot;desc&quot;: &quot;Ends the active batch, flushing deferred signals.&quot;,
+            &quot;params&quot;: [],
+            &quot;returns&quot;: [],
+            &quot;function_type&quot;: &quot;method&quot;,
+            &quot;source&quot;: {
+                &quot;line&quot;: 414,
+                &quot;path&quot;: &quot;docs/Quantix.lua&quot;
+            }
+        },
+        {
+            &quot;name&quot;: &quot;GetModifiersForStat&quot;,
+            &quot;desc&quot;: &quot;Returns all active modifiers registered for `statName`.\n\n```lua\nfor _, mod in stats:GetModifiersForStat(\&quot;Damage\&quot;) do\n    print(mod.Id, mod.Type, mod.Value)\nend\n```&quot;,
+            &quot;params&quot;: [
+                {
+                    &quot;name&quot;: &quot;statName&quot;,
+                    &quot;desc&quot;: &quot;&quot;,
+                    &quot;lua_type&quot;: &quot;string&quot;
+                }
+            ],
+            &quot;returns&quot;: [
+                {
+                    &quot;desc&quot;: &quot;&quot;,
+                    &quot;lua_type&quot;: &quot;{ Modifier }&quot;
+                }
+            ],
+            &quot;function_type&quot;: &quot;method&quot;,
+            &quot;source&quot;: {
+                &quot;line&quot;: 433,
+                &quot;path&quot;: &quot;docs/Quantix.lua&quot;
+            }
+        },
+        {
+            &quot;name&quot;: &quot;GetModifiers&quot;,
+            &quot;desc&quot;: &quot;Returns all active modifiers across all stats.&quot;,
+            &quot;params&quot;: [],
+            &quot;returns&quot;: [
+                {
+                    &quot;desc&quot;: &quot;&quot;,
+                    &quot;lua_type&quot;: &quot;{ Modifier }&quot;
+                }
+            ],
+            &quot;function_type&quot;: &quot;method&quot;,
+            &quot;source&quot;: {
+                &quot;line&quot;: 443,
+                &quot;path&quot;: &quot;docs/Quantix.lua&quot;
+            }
+        },
+        {
+            &quot;name&quot;: &quot;GetModifierById&quot;,
+            &quot;desc&quot;: &quot;Returns the modifier with the given ID, or `nil` if it does not exist.&quot;,
+            &quot;params&quot;: [
+                {
+                    &quot;name&quot;: &quot;modifierId&quot;,
+                    &quot;desc&quot;: &quot;&quot;,
+                    &quot;lua_type&quot;: &quot;string&quot;
+                }
+            ],
+            &quot;returns&quot;: [
+                {
+                    &quot;desc&quot;: &quot;&quot;,
+                    &quot;lua_type&quot;: &quot;Modifier?&quot;
+                }
+            ],
+            &quot;function_type&quot;: &quot;method&quot;,
+            &quot;source&quot;: {
+                &quot;line&quot;: 454,
+                &quot;path&quot;: &quot;docs/Quantix.lua&quot;
+            }
+        },
+        {
+            &quot;name&quot;: &quot;Trace&quot;,
+            &quot;desc&quot;: &quot;Returns a formatted multi-line string showing the full evaluation pipeline\nfor `statName`: base value, all active modifiers, per-phase accumulators,\nand final result. Skipped (condition-failed) modifiers are listed separately.\n\n```lua\nprint(stats:Trace(\&quot;Damage\&quot;))\n-- Stat:  Damage\n-- Base:  25\n-- Active modifiers: 2\n--   [FlatAdd] Attachment/  value=10  priority=0\n-- Phase [FlatAdd]:\n--   FlatAdd: { sum=10 }\n-- = Final: 35\n```&quot;,
+            &quot;params&quot;: [
+                {
+                    &quot;name&quot;: &quot;statName&quot;,
+                    &quot;desc&quot;: &quot;&quot;,
+                    &quot;lua_type&quot;: &quot;string&quot;
+                }
+            ],
+            &quot;returns&quot;: [
+                {
+                    &quot;desc&quot;: &quot;&quot;,
+                    &quot;lua_type&quot;: &quot;string&quot;
+                }
+            ],
+            &quot;function_type&quot;: &quot;method&quot;,
+            &quot;source&quot;: {
+                &quot;line&quot;: 480,
+                &quot;path&quot;: &quot;docs/Quantix.lua&quot;
+            }
+        },
+        {
+            &quot;name&quot;: &quot;DebugDump&quot;,
+            &quot;desc&quot;: &quot;Prints a full dump of all registered stats and active modifiers to the\nRoblox console. Useful for in-editor inspection.\n\n```lua\nstats:DebugDump()\n```&quot;,
+            &quot;params&quot;: [],
+            &quot;returns&quot;: [],
+            &quot;function_type&quot;: &quot;method&quot;,
+            &quot;source&quot;: {
+                &quot;line&quot;: 493,
+                &quot;path&quot;: &quot;docs/Quantix.lua&quot;
+            }
+        },
+        {
+            &quot;name&quot;: &quot;Destroy&quot;,
+            &quot;desc&quot;: &quot;Destroys the controller. Disconnects all signals and clears all internal\nstate. Always call this when the owning entity (weapon, character) is removed.\n\n```lua\nstats:Destroy()\n```&quot;,
+            &quot;params&quot;: [],
+            &quot;returns&quot;: [],
+            &quot;function_type&quot;: &quot;method&quot;,
+            &quot;source&quot;: {
+                &quot;line&quot;: 508,
+                &quot;path&quot;: &quot;docs/Quantix.lua&quot;
+            }
+        }
+    ],
+    &quot;properties&quot;: [
+        {
+            &quot;name&quot;: &quot;Types&quot;,
+            &quot;desc&quot;: &quot;Table of all registered modifier type name constants.\n\n| Key | Value |\n|-----|-------|\n| `SetBase` | `\&quot;SetBase\&quot;` |\n| `FlatAdd` | `\&quot;FlatAdd\&quot;` |\n| `AddPercent` | `\&quot;AddPercent\&quot;` |\n| `Multiply` | `\&quot;Multiply\&quot;` |\n| `Override` | `\&quot;Override\&quot;` |\n| `MinOverride` | `\&quot;MinOverride\&quot;` |\n| `MaxOverride` | `\&quot;MaxOverride\&quot;` |\n| `ClampMin` | `\&quot;ClampMin\&quot;` |\n| `ClampMax` | `\&quot;ClampMax\&quot;` |\n| `StackUnique` | `\&quot;StackUnique\&quot;` |\n| `Lock` | `\&quot;Lock\&quot;` |\n| `BehaviorReplace` | `\&quot;BehaviorReplace\&quot;` |\n| `BehaviorOverride` | `\&quot;BehaviorOverride\&quot;` |\n| `BehaviorDeepMerge` | `\&quot;BehaviorDeepMerge\&quot;` |\n| `BehaviorHook` | `\&quot;BehaviorHook\&quot;` |\n| `BehaviorExclusive` | `\&quot;BehaviorExclusive\&quot;` |\n\n```lua\nstats:AddModifier({ ..., Type = Quantix.Types.FlatAdd })\n```&quot;,
+            &quot;lua_type&quot;: &quot;{ [string]: string }&quot;,
+            &quot;source&quot;: {
+                &quot;line&quot;: 100,
+                &quot;path&quot;: &quot;docs/Quantix.lua&quot;
+            }
+        },
+        {
+            &quot;name&quot;: &quot;Sources&quot;,
+            &quot;desc&quot;: &quot;Built-in source category constants for tagging modifiers.\n\n| Key | Value |\n|-----|-------|\n| `Attachment` | `\&quot;Attachment\&quot;` |\n| `Ammo` | `\&quot;Ammo\&quot;` |\n| `Perk` | `\&quot;Perk\&quot;` |\n| `State` | `\&quot;State\&quot;` |\n| `System` | `\&quot;System\&quot;` |\n| `Ballistics` | `\&quot;Ballistics\&quot;` |\n\n```lua\nstats:AddModifier({ ..., Source = Quantix.Sources.Attachment, SourceId = id })\nstats:RemoveBySource(Quantix.Sources.Attachment, id)\n```&quot;,
+            &quot;lua_type&quot;: &quot;{ [string]: string }&quot;,
+            &quot;source&quot;: {
+                &quot;line&quot;: 122,
+                &quot;path&quot;: &quot;docs/Quantix.lua&quot;
+            }
+        },
+        {
+            &quot;name&quot;: &quot;Signals&quot;,
+            &quot;desc&quot;: &quot;Lifecycle signals for this controller.\n\n| Signal | Parameters | Fires when |\n|--------|-----------|------------|\n| `OnStatChanged` | `statName: string, newValue: any, oldValue: any` | A stat&#x27;s final value changed |\n| `OnModifierAdded` | `modifier: Modifier` | A modifier was added |\n| `OnModifierRemoved` | `modifierId: string` | A modifier was removed |\n| `OnBatchEnd` | (none) | A `Batch` completed |\n\n```lua\nstats.Signals.OnStatChanged:Connect(function(statName, newValue, oldValue)\n    print(statName, oldValue, \&quot;→\&quot;, newValue)\nend)\n```&quot;,
+            &quot;lua_type&quot;: &quot;StatControllerSignals&quot;,
+            &quot;source&quot;: {
+                &quot;line&quot;: 145,
+                &quot;path&quot;: &quot;docs/Quantix.lua&quot;
+            }
+        }
+    ],
+    &quot;types&quot;: [],
+    &quot;name&quot;: &quot;Quantix&quot;,
+    &quot;desc&quot;: &quot;Deterministic, phase-ordered stat modifier system for Roblox Luau.\n\nQuantix manages numeric and table-based stats through a typed modifier\npipeline. Modifiers are sorted into phases\n(`SetBase → FlatAdd → AddPercent → Multiply → Override → Clamp → Lock`),\nevaluated in a fixed order, and cached until invalidated.\n\nBehavior modifier types (`BehaviorOverride`, `BehaviorDeepMerge`,\n`BehaviorHook`, `BehaviorExclusive`, `BehaviorReplace`) run through the\nsame pipeline, replacing ad-hoc merge logic for table-based stats.\n\n```lua\nlocal Quantix = require(ReplicatedStorage.Quantix)\n\nlocal stats = Quantix.new({\n    Damage  = 25,\n    Range   = 50,\n    Spread  = { Base = 1.5, ADS = 0.8 },\n})\n\nlocal id = stats:AddModifier({\n    Stat   = \&quot;Damage\&quot;,\n    Type   = Quantix.Types.FlatAdd,\n    Value  = 10,\n    Source = Quantix.Sources.Attachment,\n})\n\nprint(stats:Get(\&quot;Damage\&quot;))   --&gt; 35\nstats:RemoveModifier(id)\nprint(stats:Get(\&quot;Damage\&quot;))   --&gt; 25\n```&quot;,
+    &quot;source&quot;: {
+        &quot;line&quot;: 40,
+        &quot;path&quot;: &quot;docs/Quantix.lua&quot;
+    }
+}</pre></details></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#properties" class="table-of-contents__link toc-highlight">Properties</a><ul><li><a href="#Signals" class="table-of-contents__link toc-highlight">Signals</a></li><li><a href="#Sources" class="table-of-contents__link toc-highlight">Sources</a></li><li><a href="#Types" class="table-of-contents__link toc-highlight">Types</a></li></ul></li><li><a href="#functions" class="table-of-contents__link toc-highlight">Functions</a><ul><li><a href="#AddModifier" class="table-of-contents__link toc-highlight">:AddModifier</a></li><li><a href="#Batch" class="table-of-contents__link toc-highlight">:Batch</a></li><li><a href="#BeginBatch" class="table-of-contents__link toc-highlight">:BeginBatch</a></li><li><a href="#ClearAll" class="table-of-contents__link toc-highlight">:ClearAll</a></li><li><a href="#DebugDump" class="table-of-contents__link toc-highlight">:DebugDump</a></li><li><a href="#Destroy" class="table-of-contents__link toc-highlight">:Destroy</a></li><li><a href="#EndBatch" class="table-of-contents__link toc-highlight">:EndBatch</a></li><li><a href="#Evaluate" class="table-of-contents__link toc-highlight">:Evaluate</a></li><li><a href="#Get" class="table-of-contents__link toc-highlight">:Get</a></li><li><a href="#GetAll" class="table-of-contents__link toc-highlight">:GetAll</a></li><li><a href="#GetBase" class="table-of-contents__link toc-highlight">:GetBase</a></li><li><a href="#GetGroup" class="table-of-contents__link toc-highlight">:GetGroup</a></li><li><a href="#GetModifierById" class="table-of-contents__link toc-highlight">:GetModifierById</a></li><li><a href="#GetModifiers" class="table-of-contents__link toc-highlight">:GetModifiers</a></li><li><a href="#GetModifiersForStat" class="table-of-contents__link toc-highlight">:GetModifiersForStat</a></li><li><a href="#RegisterBehavior" class="table-of-contents__link toc-highlight">:RegisterBehavior</a></li><li><a href="#RemoveBySource" class="table-of-contents__link toc-highlight">:RemoveBySource</a></li><li><a href="#RemoveModifier" class="table-of-contents__link toc-highlight">:RemoveModifier</a></li><li><a href="#ReplaceBySource" class="table-of-contents__link toc-highlight">:ReplaceBySource</a></li><li><a href="#SetBase" class="table-of-contents__link toc-highlight">:SetBase</a></li><li><a href="#Trace" class="table-of-contents__link toc-highlight">:Trace</a></li><li><a href="#new" class="table-of-contents__link toc-highlight">.new</a></li></ul></li></ul></div></div></div></div></main></div></div><footer class="footer footer--dark"><div class="container container-fluid"><div class="row footer__links"><div class="col footer__col"><div class="footer__title">Community</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://discord.gg/XMYMRKcd3g" target="_blank" rel="noopener noreferrer" class="footer__link-item">Discord Server<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPIU"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a></li><li class="footer__item"><a href="https://discord.com/users/897026279243669504" target="_blank" rel="noopener noreferrer" class="footer__link-item">Discord (Direct)<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPIU"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a></li></ul></div><div class="col footer__col"><div class="footer__title">Social</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://www.instagram.com/vedevelopment/" target="_blank" rel="noopener noreferrer" class="footer__link-item">Instagram<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPIU"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a></li><li class="footer__item"><a href="https://x.com/vedevelopment_" target="_blank" rel="noopener noreferrer" class="footer__link-item">X (Twitter)<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPIU"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a></li><li class="footer__item"><a href="https://www.tiktok.com/@vedevelopment" target="_blank" rel="noopener noreferrer" class="footer__link-item">TikTok<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPIU"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a></li></ul></div></div><div class="footer__bottom text--center"><div class="footer__copyright">Copyright © 2026 VeDevelopment</div></div></div></footer></div>
+</body>
+</html>
