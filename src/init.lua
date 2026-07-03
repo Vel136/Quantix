@@ -3,13 +3,6 @@
 --[[
 	Copyright (c) 2026 VeDevelopment. All rights reserved.
 	Proprietary software. Unauthorized use, copying, or distribution is strictly prohibited.
-
-	v1.1.0 - Generalized evaluation to support non-numeric base values.
-	         Behavior modifier types (BehaviorOverride, BehaviorDeepMerge,
-	         BehaviorHook, BehaviorExclusive, BehaviorReplace) now flow through
-	         the same pipeline as numeric stat modifiers. EvaluateBehavior() is
-	         provided as a dedicated entry point for behavior evaluation so that
-	         VetraNet's mergeAllModifiers can be replaced entirely.
 ]]
 
 local Identity = "StatController"
@@ -58,6 +51,26 @@ local function _flatten(t: any, out: { [string]: number }, prefix: string?)
 			_flatten(v, out, key)
 		end
 	end
+end
+
+local function _getPath(root: any, parts: { string }): any
+	local cur = root
+	for i = 1, #parts do
+		if type(cur) ~= "table" then return nil end
+		cur = cur[parts[i]]
+	end
+	return cur
+end
+
+local function _setPath(root: any, parts: { string }, value: any)
+	local cur = root
+	local n   = #parts
+	for i = 1, n - 1 do
+		local seg = parts[i]
+		if type(cur[seg]) ~= "table" then cur[seg] = {} end
+		cur = cur[seg]
+	end
+	cur[parts[n]] = value
 end
 
 local _idCounter = 0
@@ -280,13 +293,34 @@ function StatController._Evaluate(self: StatController, statName: string): any
 		self._cache[statName] = r.final
 	end
 
+	-- Write result directly into the live data table
+	if self._current then
+		local parts = self._statParts[statName]
+		if not parts then
+			parts = string.split(statName, ".")
+			self._statParts[statName] = parts
+		end
+		_setPath(self._current, parts, r.final)
+	end
+
 	return r.final
+end
+
+--- Returns true if a modifier is suppressed by an active block. A source can be
+--- blocked broadly (all SourceIds) via the SOURCE_ID_ALL key, or for a specific
+--- SourceId. Either match suppresses the modifier — non-destructively; the mod
+--- stays indexed and is restored the moment the block is lifted.
+function StatController._IsModBlocked(self: StatController, mod: any): boolean
+	local blockedSids = self._blocked[mod.Source or "__unknown"]
+	if not blockedSids then return false end
+	if blockedSids[SOURCE_ID_ALL] then return true end
+	return blockedSids[tostring(mod.SourceId or SOURCE_ID_ALL)] == true
 end
 
 function StatController._CollectActive(self: StatController, statName: string): { any }
 	local active = {}
 	for _, mod in self._byStat[statName] or {} do
-		if not mod.Condition or mod.Condition() then
+		if (not mod.Condition or mod.Condition()) and not self:_IsModBlocked(mod) then
 			table.insert(active, mod)
 		end
 	end
@@ -424,6 +458,105 @@ function StatController.RemoveBySource(self: StatController, source: string, sou
 	return #ids
 end
 
+--- Collects the distinct stat names touched by modifiers under a source
+--- (optionally a specific sourceId). Used to invalidate/refire exactly the
+--- stats a block or unblock affects.
+function StatController._StatsForSource(self: StatController, source: string, sourceId: (string | number)?): { [string]: true }
+	local stats     = {}
+	local srcBucket = self._bySource[source]
+	if not srcBucket then return stats end
+
+	local function scan(sidBucket: any)
+		for _, mod in sidBucket do
+			stats[mod.Stat] = true
+		end
+	end
+
+	if sourceId ~= nil then
+		local sidBucket = srcBucket[tostring(sourceId)]
+		if sidBucket then scan(sidBucket) end
+	else
+		for _, sidBucket in srcBucket do
+			scan(sidBucket)
+		end
+	end
+	return stats
+end
+
+--- Suppresses modifiers from a source (optionally a specific sourceId) during
+--- evaluation WITHOUT removing them. Reversible via Unblock — the modifiers stay
+--- indexed and are restored intact when unblocked. Also suppresses any future
+--- modifiers added under the same source/sourceId while the block is active.
+---
+--- Block(source)            → blocks every modifier from that source.
+--- Block(source, sourceId)  → blocks only that source/sourceId pair.
+---
+--- e.g. gun.StatController:Block("Ammo") makes the flamethrower ignore all
+--- ammo-type modifiers while keeping them attached.
+function StatController.Block(self: StatController, source: string, sourceId: (string | number)?)
+	assert(type(source) == "string" and #source > 0, "[StatController] Block: source must be a non-empty string")
+
+	local sidKey       = sourceId ~= nil and tostring(sourceId) or SOURCE_ID_ALL
+	local blockedSids  = self._blocked[source]
+	if blockedSids and blockedSids[sidKey] then
+		return -- already blocked; no-op (keeps Block idempotent)
+	end
+	if not blockedSids then
+		blockedSids        = {}
+		self._blocked[source] = blockedSids
+	end
+
+	-- Stats affected are computed BEFORE flipping the block on, so we capture the
+	-- current (unblocked) values to compare against.
+	local affected = self:_StatsForSource(source, sourceId)
+
+	self:Batch(function()
+		for statName in affected do
+			self:_TrackChange(statName)
+		end
+		blockedSids[sidKey] = true
+		for statName in affected do
+			self:_Invalidate(statName)
+		end
+	end)
+end
+
+--- Lifts a block set by Block, restoring the source's modifiers to evaluation.
+--- Returns true if a block was actually removed.
+function StatController.Unblock(self: StatController, source: string, sourceId: (string | number)?): boolean
+	local blockedSids = self._blocked[source]
+	if not blockedSids then return false end
+
+	local sidKey = sourceId ~= nil and tostring(sourceId) or SOURCE_ID_ALL
+	if not blockedSids[sidKey] then return false end
+
+	local affected = self:_StatsForSource(source, sourceId)
+
+	self:Batch(function()
+		for statName in affected do
+			self:_TrackChange(statName)
+		end
+		blockedSids[sidKey] = nil
+		if not next(blockedSids) then
+			self._blocked[source] = nil
+		end
+		for statName in affected do
+			self:_Invalidate(statName)
+		end
+	end)
+	return true
+end
+
+--- Returns whether a source (optionally a specific sourceId) is currently blocked.
+--- A specific sourceId counts as blocked if a broad (all-sourceId) block exists.
+function StatController.IsBlocked(self: StatController, source: string, sourceId: (string | number)?): boolean
+	local blockedSids = self._blocked[source]
+	if not blockedSids then return false end
+	if blockedSids[SOURCE_ID_ALL] then return true end
+	if sourceId == nil then return false end
+	return blockedSids[tostring(sourceId)] == true
+end
+
 function StatController.ReplaceBySource(self: StatController, source: string, sourceId: (string | number)?, newModifiers: { any }): { string }
 	local ids = {}
 	self:Batch(function()
@@ -510,9 +643,12 @@ function StatController.Trace(self: StatController, statName: string): string
 	local lines      = {}
 	local activeMods = self:_CollectActive(statName)
 	local skipped    = {}
+	local blocked    = {}
 
 	for _, mod in self._byStat[statName] or {} do
-		if mod.Condition and not mod.Condition() then
+		if self:_IsModBlocked(mod) then
+			table.insert(blocked, mod)
+		elseif mod.Condition and not mod.Condition() then
 			table.insert(skipped, mod)
 		end
 	end
@@ -533,6 +669,11 @@ function StatController.Trace(self: StatController, statName: string): string
 	for _, mod in skipped do
 		local label = string.format("%s/%s", mod.Source or "?", tostring(mod.SourceId or ""))
 		table.insert(lines, string.format("  [SKIPPED condition] [%s] %s", mod.Type, label))
+	end
+
+	for _, mod in blocked do
+		local label = string.format("%s/%s", mod.Source or "?", tostring(mod.SourceId or ""))
+		table.insert(lines, string.format("  [BLOCKED source] [%s] %s", mod.Type, label))
 	end
 
 	local r = ModifierTypes.Evaluate(base, activeMods)
@@ -593,6 +734,9 @@ function StatController.Destroy(self: StatController)
 	table.clear(self._cache)
 	table.clear(self._base)
 	table.clear(self._hasCondition)
+	table.clear(self._statParts)
+	table.clear(self._blocked)
+	self._current = nil
 end
 
 -- ─── Constructor ─────────────────────────────────────────────────────────────
@@ -620,6 +764,9 @@ function module.new(data: any): StatController
 	self._byId           = {}
 	self._cache          = {}
 	self._hasCondition   = {}
+	self._statParts      = {}
+	self._blocked        = {}
+	self._current        = data
 	self._batching       = false
 	self._pendingChanges = nil
 	self._pendingAdded   = nil
@@ -666,6 +813,9 @@ export type StatController = typeof(setmetatable({} :: {
 	_byId           : { [string]: Modifier },
 	_cache          : { [string]: any },
 	_hasCondition   : { [string]: true },
+	_statParts      : { [string]: { string } },
+	_blocked        : { [string]: { [string]: true } },
+	_current        : any?,
 	_batching       : boolean,
 	_pendingChanges : { [string]: any }?,
 	_pendingAdded   : { Modifier }?,
