@@ -413,6 +413,71 @@ function Quantix:BeginBatch() end
 ]=]
 function Quantix:EndBatch() end
 
+-- ─── Source blocking ──────────────────────────────────────────────────────────
+
+--[=[
+	@method Block
+	@within Quantix
+
+	Suppresses all modifiers from a source during evaluation without removing
+	them. The modifiers stay indexed and are restored instantly when `Unblock`
+	is called. Also suppresses any future modifiers added under the same
+	source/sourceId while the block is active.
+
+	`Block(source)` blocks every modifier from that source regardless of
+	`SourceId`. `Block(source, sourceId)` blocks only that specific pair.
+
+	```lua
+	-- Ignore all ammo modifiers while a special state is active
+	stats:Block(Quantix.Sources.Ammo)
+
+	-- Block a specific attachment
+	stats:Block(Quantix.Sources.Attachment, attachment.Id)
+	```
+
+	@param source string
+	@param sourceId (string | number)?
+]=]
+function Quantix:Block(source, sourceId) end
+
+--[=[
+	@method Unblock
+	@within Quantix
+
+	Lifts a block set by `Block`, restoring the source's modifiers to
+	evaluation. Returns `true` if a block was actually removed.
+
+	```lua
+	stats:Unblock(Quantix.Sources.Ammo)
+	stats:Unblock(Quantix.Sources.Attachment, attachment.Id)
+	```
+
+	@param source string
+	@param sourceId (string | number)?
+	@return boolean -- `true` if a block was removed, `false` if none existed.
+]=]
+function Quantix:Unblock(source, sourceId) end
+
+--[=[
+	@method IsBlocked
+	@within Quantix
+
+	Returns `true` if a source (optionally a specific `SourceId`) is currently
+	blocked. A specific `SourceId` also counts as blocked if a broad
+	(all-sourceId) block exists for that source.
+
+	```lua
+	if stats:IsBlocked(Quantix.Sources.Ammo) then
+	    -- ammo modifiers are suppressed
+	end
+	```
+
+	@param source string
+	@param sourceId (string | number)?
+	@return boolean
+]=]
+function Quantix:IsBlocked(source, sourceId) end
+
 -- ─── Modifier query ───────────────────────────────────────────────────────────
 
 --[=[

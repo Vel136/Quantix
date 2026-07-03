@@ -114,6 +114,14 @@ end)
 | `stats:RegisterBehavior(key, baseTable)` | Register a table-based behavior stat |
 | `stats:Evaluate(key, fallback)` | Evaluate a behavior stat; returns `(table, hooks)` |
 
+**Source Blocking**
+
+| Method | Description |
+|--------|-------------|
+| `stats:Block(source, sourceId?)` | Suppress modifiers from a source without removing them |
+| `stats:Unblock(source, sourceId?)` | Lift a block and restore the source's modifiers |
+| `stats:IsBlocked(source, sourceId?)` | Check if a source is currently blocked |
+
 **Batching**
 
 | Method | Description |

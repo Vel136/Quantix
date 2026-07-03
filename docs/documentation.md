@@ -229,6 +229,40 @@ stats:AddModifier({
 
 ---
 
+## Source Blocking
+
+Block and unblock modifier sources at runtime without removing any modifiers. Blocked modifiers are suppressed during evaluation and restored the moment the block is lifted.
+
+```lua
+-- Suppress all ammo modifiers (e.g. while a special state is active)
+stats:Block(Quantix.Sources.Ammo)
+
+print(stats:Get("Damage"))   -- ammo mods ignored
+
+stats:Unblock(Quantix.Sources.Ammo)
+
+print(stats:Get("Damage"))   -- ammo mods back
+```
+
+Block a specific source instance:
+
+```lua
+stats:Block(Quantix.Sources.Attachment, attachment.Id)
+stats:Unblock(Quantix.Sources.Attachment, attachment.Id)
+```
+
+Check whether a source is currently blocked:
+
+```lua
+if stats:IsBlocked(Quantix.Sources.Ammo) then
+    -- ammo modifiers are suppressed
+end
+```
+
+`Block(source)` covers all `SourceId` values under that source. `Block(source, sourceId)` targets only that specific pair. A broad block also suppresses future modifiers added under the same source while the block is active.
+
+---
+
 ## Signals
 
 | Signal | Parameters | Fires when |
@@ -307,7 +341,7 @@ stats:AddModifier({
 
 ### Trace
 
-Returns a formatted string showing the full evaluation pipeline for a stat.
+Returns a formatted string showing the full evaluation pipeline for a stat. Includes active modifiers, condition-skipped modifiers, and source-blocked modifiers.
 
 ```lua
 print(stats:Trace("Damage"))
@@ -316,6 +350,8 @@ print(stats:Trace("Damage"))
 -- Active modifiers: 2
 --   [FlatAdd] Attachment/  value=10  priority=0
 --   [Multiply] Perk/  value=0.2  priority=0
+--   [SKIPPED condition] [FlatAdd] State/
+--   [BLOCKED source] [FlatAdd] Ammo/
 -- Phase [FlatAdd]:
 --   FlatAdd: { sum=10 }
 -- Phase [Multiply]:

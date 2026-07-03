@@ -114,6 +114,26 @@ No. `Quantix.Sources` constants are provided for convenience, but `Source` is a 
 
 ---
 
+## Blocking
+
+**What is the difference between `Block` and `RemoveBySource`?**
+
+`RemoveBySource` permanently removes modifiers. `Block` suppresses them during evaluation without touching the index — the modifiers remain attached and are restored instantly when `Unblock` is called. Use `Block` when you want to toggle a source on and off at runtime without rebuilding modifiers each time.
+
+---
+
+**Does `Block` affect modifiers added after the block is set?**
+
+Yes. While a block is active, any modifiers added under the same source/sourceId are also suppressed during evaluation. They become active as soon as `Unblock` is called.
+
+---
+
+**What does `Block(source)` vs `Block(source, sourceId)` do?**
+
+`Block(source)` suppresses every modifier from that source regardless of `SourceId`. `Block(source, sourceId)` targets only that specific pair. A broad block also counts when you call `IsBlocked(source, specificId)`.
+
+---
+
 ## Lifecycle
 
 **How do I clean up a StatController?**

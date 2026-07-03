@@ -209,6 +209,28 @@ end
 
 ---
 
+## Blocking a Source (Non-Destructive Suppression)
+
+Temporarily ignore all modifiers from a source without removing them. Useful when a game state should override normally active modifiers and then snap back.
+
+```lua
+-- A special flamethrower state that ignores ammo type modifiers
+local function onSpecialActivated()
+    stats:Block(Quantix.Sources.Ammo)
+end
+
+local function onSpecialDeactivated()
+    stats:Unblock(Quantix.Sources.Ammo)
+end
+
+-- Block a specific attachment while it's "broken"
+stats:Block(Quantix.Sources.Attachment, brokenAttachment.Id)
+-- ... later ...
+stats:Unblock(Quantix.Sources.Attachment, brokenAttachment.Id)
+```
+
+---
+
 ## Debug Trace
 
 Inspect the full modifier pipeline for a specific stat during development.
