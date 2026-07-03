@@ -64,8 +64,8 @@ print(stats:Get(&quot;Damage&quot;))   --&gt; 35
 stats:RemoveModifier(id)
 print(stats:Get(&quot;Damage&quot;))   --&gt; 25
 ```"><link data-rh="true" rel="canonical" href="https://vel136.github.io/Quantix/api/Quantix"><link data-rh="true" rel="alternate" href="https://vel136.github.io/Quantix/api/Quantix" hreflang="en"><link data-rh="true" rel="alternate" href="https://vel136.github.io/Quantix/api/Quantix" hreflang="x-default"><link rel="stylesheet" href="/Quantix/assets/css/styles.5cbed574.css">
-<script src="/Quantix/assets/js/runtime~main.aabd7857.js" defer="defer"></script>
-<script src="/Quantix/assets/js/main.7ed31239.js" defer="defer"></script>
+<script src="/Quantix/assets/js/runtime~main.89656943.js" defer="defer"></script>
+<script src="/Quantix/assets/js/main.78a62e42.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
 <script>!function(){function t(t){document.documentElement.setAttribute("data-theme",t)}var e=function(){try{return new URLSearchParams(window.location.search).get("docusaurus-theme")}catch(t){}}()||function(){try{return window.localStorage.getItem("theme")}catch(t){}}();null!==e?t(e):window.matchMedia("(prefers-color-scheme: dark)").matches?t("dark"):(window.matchMedia("(prefers-color-scheme: light)").matches,t("light"))}(),function(){try{const c=new URLSearchParams(window.location.search).entries();for(var[t,e]of c)if(t.startsWith("docusaurus-data-")){var a=t.replace("docusaurus-data-","data-");document.documentElement.setAttribute(a,e)}}catch(t){}}()</script><div id="__docusaurus"><div role="region" aria-label="Skip to main content"><a class="skipToContent_fXgn" href="#__docusaurus_skipToContent_fallback">Skip to main content</a></div><nav aria-label="Main" class="navbar navbar--fixed-top"><div class="navbar__inner"><div class="navbar__items"><button aria-label="Toggle navigation bar" aria-expanded="false" class="navbar__toggle clean-btn" type="button"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path></svg></button><a class="navbar__brand" href="/Quantix/"><b class="navbar__title text--truncate">Quantix</b></a><a class="navbar__item navbar__link" href="/Quantix/docs/intro">Docs</a><a aria-current="page" class="navbar__item navbar__link navbar__link--active" href="/Quantix/api/">API</a></div><div class="navbar__items navbar__items--right"><a href="https://github.com/Vel136/Quantix" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">GitHub<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPIU"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a><div class="toggle_vylO colorModeToggle_DEke"><button class="clean-btn toggleButton_gllP toggleButtonDisabled_aARS" type="button" disabled="" title="Switch between dark and light mode (currently light mode)" aria-label="Switch between dark and light mode (currently light mode)" aria-live="polite" aria-pressed="false"><svg viewBox="0 0 24 24" width="24" height="24" class="lightToggleIcon_pyhR"><path fill="currentColor" d="M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3S10.35,9,12,9 M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5 S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0 c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41 L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41 s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06 c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" class="darkToggleIcon_wfgR"><path fill="currentColor" d="M9.37,5.51C9.19,6.15,9.1,6.82,9.1,7.5c0,4.08,3.32,7.4,7.4,7.4c0.68,0,1.35-0.09,1.99-0.27C17.45,17.19,14.93,19,12,19 c-3.86,0-7-3.14-7-7C5,9.07,6.81,6.55,9.37,5.51z M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36 c-0.98,1.37-2.58,2.26-4.4,2.26c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"></path></svg></button></div><div class="navbarSearchContainer_Bca1"><div class="navbar__search"><span aria-label="expand searchbar" role="button" class="search-icon" tabindex="0"></span><input id="search_input_react" type="search" placeholder="Loading..." aria-label="Search" class="navbar__search-input search-bar" disabled=""></div></div></div></div><div role="presentation" class="navbar-sidebar__backdrop"></div></nav><div id="__docusaurus_skipToContent_fallback" class="main-wrapper mainWrapper_z2l0 docPageContainer_wNNk"><div class="docPage_Dpn1"><div class="docSidebarContainer_o_re"><div class="sidebar_njMd"><nav aria-label="Docs sidebar" class="menu thin-scrollbar menu_SIkG"><ul class="theme-doc-sidebar-menu menu__list"><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item"><div class="menu__list-item-collapsible"><a class="menu__link menu__link--sublist menu__link--sublist-caret menu__link--active" role="button" aria-expanded="true" href="/Quantix/api/Quantix">API</a></div><ul style="display:block;overflow:visible;height:auto" class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link menu__link--active" aria-current="page" tabindex="0" href="/Quantix/api/Quantix">​Quantix</a></li></ul></li></ul></nav></div></div><main class="docMainContainer_HJE1"><div class="container padding-vert--lg"><div class="row"><div class="col docItemCol_MU3C"><div class="docItemContainer_Wv98"><article><div class="member_J0w1 markdown"><div class="tocCollapsible_ETCw theme-doc-toc-mobile tocMobile_oUs_"><button type="button" class="clean-btn tocCollapsibleButton_TO0P">On this page</button></div><header><h1 class="docTitle_mZRt" style="text-decoration:none"><span style="display:inline-block">Quantix</span></h1><div class="luaClassTags_EipM"></div><div>
@@ -425,17 +425,54 @@ stats<span class="token punctuation">:</span><span class="token function">EndBat
 </code></pre>
 </div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="EndBatch"><code style="text-decoration:none">EndBatch</code><a href="#EndBatch" class="hash-link" aria-label="Direct link to EndBatch" title="Direct link to EndBatch">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/Vel136/Quantix/blob/master/docs/Quantix.lua#L414"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>Quantix<!-- -->:</code><code class="green_DgR4">EndBatch</code><code>(</code><code>) → </code><code>(</code><code>)</code></div><div>
 <p>Ends the active batch, flushing deferred signals.</p>
-</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="GetModifiersForStat"><code style="text-decoration:none">GetModifiersForStat</code><a href="#GetModifiersForStat" class="hash-link" aria-label="Direct link to GetModifiersForStat" title="Direct link to GetModifiersForStat">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/Vel136/Quantix/blob/master/docs/Quantix.lua#L433"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>Quantix<!-- -->:</code><code class="green_DgR4">GetModifiersForStat</code><code>(</code><code>statName<!-- -->: </code><code class="blue_P4bS">string</code><code>) → </code><code class="purple_ieR2">{</code><code class="blue_P4bS">Modifier</code><code class="purple_ieR2">}</code></div><div>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="Block"><code style="text-decoration:none">Block</code><a href="#Block" class="hash-link" aria-label="Direct link to Block" title="Direct link to Block">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/Vel136/Quantix/blob/master/docs/Quantix.lua#L441"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>Quantix<!-- -->:</code><code class="green_DgR4">Block</code><code>(</code><div class="inset_uKQm"><div><code>source<!-- -->: </code><code class="blue_P4bS">string</code><code>,</code></div><div><code>sourceId<!-- -->: </code><code class="purple_ieR2">(</code><code class="blue_P4bS">string</code><code class="op_lSLc"> | </code><code class="blue_P4bS">number</code><code class="purple_ieR2">)</code><code class="blue_P4bS">?</code></div></div><code>) → </code><code>(</code><code>)</code></div><div>
+<p>
+  Suppresses all modifiers from a source during evaluation without removing
+  them. The modifiers stay indexed and are restored instantly when <code>Unblock</code>
+  is called. Also suppresses any future modifiers added under the same
+  source/sourceId while the block is active.
+</p>
+<p>
+  <code>Block(source)</code> blocks every modifier from that source regardless of
+  <code>SourceId</code>. <code>Block(source, sourceId)</code> blocks only that specific pair.
+</p>
+<pre class="language-lua"><code class="language-lua"><span class="token comment">-- Ignore all ammo modifiers while a special state is active</span>
+stats<span class="token punctuation">:</span><span class="token function">Block</span><span class="token punctuation">(</span>Quantix<span class="token punctuation">.</span>Sources<span class="token punctuation">.</span>Ammo<span class="token punctuation">)</span>
+
+<span class="token comment">-- Block a specific attachment</span>
+stats<span class="token punctuation">:</span><span class="token function">Block</span><span class="token punctuation">(</span>Quantix<span class="token punctuation">.</span>Sources<span class="token punctuation">.</span>Attachment<span class="token punctuation">,</span> attachment<span class="token punctuation">.</span>Id<span class="token punctuation">)</span>
+</code></pre>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="Unblock"><code style="text-decoration:none">Unblock</code><a href="#Unblock" class="hash-link" aria-label="Direct link to Unblock" title="Direct link to Unblock">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/Vel136/Quantix/blob/master/docs/Quantix.lua#L459"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>Quantix<!-- -->:</code><code class="green_DgR4">Unblock</code><code>(</code><div class="inset_uKQm"><div><code>source<!-- -->: </code><code class="blue_P4bS">string</code><code>,</code></div><div><code>sourceId<!-- -->: </code><code class="purple_ieR2">(</code><code class="blue_P4bS">string</code><code class="op_lSLc"> | </code><code class="blue_P4bS">number</code><code class="purple_ieR2">)</code><code class="blue_P4bS">?</code></div></div><code>) → </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
+<p><code>true</code> if a block was removed, <code>false</code> if none existed.</p>
+</span></span></div><div>
+<p>
+  Lifts a block set by <code>Block</code>, restoring the source's modifiers to
+  evaluation. Returns <code>true</code> if a block was actually removed.
+</p>
+<pre class="language-lua"><code class="language-lua">stats<span class="token punctuation">:</span><span class="token function">Unblock</span><span class="token punctuation">(</span>Quantix<span class="token punctuation">.</span>Sources<span class="token punctuation">.</span>Ammo<span class="token punctuation">)</span>
+stats<span class="token punctuation">:</span><span class="token function">Unblock</span><span class="token punctuation">(</span>Quantix<span class="token punctuation">.</span>Sources<span class="token punctuation">.</span>Attachment<span class="token punctuation">,</span> attachment<span class="token punctuation">.</span>Id<span class="token punctuation">)</span>
+</code></pre>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="IsBlocked"><code style="text-decoration:none">IsBlocked</code><a href="#IsBlocked" class="hash-link" aria-label="Direct link to IsBlocked" title="Direct link to IsBlocked">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/Vel136/Quantix/blob/master/docs/Quantix.lua#L479"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>Quantix<!-- -->:</code><code class="green_DgR4">IsBlocked</code><code>(</code><div class="inset_uKQm"><div><code>source<!-- -->: </code><code class="blue_P4bS">string</code><code>,</code></div><div><code>sourceId<!-- -->: </code><code class="purple_ieR2">(</code><code class="blue_P4bS">string</code><code class="op_lSLc"> | </code><code class="blue_P4bS">number</code><code class="purple_ieR2">)</code><code class="blue_P4bS">?</code></div></div><code>) → </code><code class="blue_P4bS">boolean</code></div><div>
+<p>
+  Returns <code>true</code> if a source (optionally a specific <code>SourceId</code>) is currently
+  blocked. A specific <code>SourceId</code> also counts as blocked if a broad
+  (all-sourceId) block exists for that source.
+</p>
+<pre class="language-lua"><code class="language-lua"><span class="token keyword">if</span> stats<span class="token punctuation">:</span><span class="token function">IsBlocked</span><span class="token punctuation">(</span>Quantix<span class="token punctuation">.</span>Sources<span class="token punctuation">.</span>Ammo<span class="token punctuation">)</span> <span class="token keyword">then</span>
+    <span class="token comment">-- ammo modifiers are suppressed</span>
+<span class="token keyword">end</span>
+</code></pre>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="GetModifiersForStat"><code style="text-decoration:none">GetModifiersForStat</code><a href="#GetModifiersForStat" class="hash-link" aria-label="Direct link to GetModifiersForStat" title="Direct link to GetModifiersForStat">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/Vel136/Quantix/blob/master/docs/Quantix.lua#L498"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>Quantix<!-- -->:</code><code class="green_DgR4">GetModifiersForStat</code><code>(</code><code>statName<!-- -->: </code><code class="blue_P4bS">string</code><code>) → </code><code class="purple_ieR2">{</code><code class="blue_P4bS">Modifier</code><code class="purple_ieR2">}</code></div><div>
 <p>Returns all active modifiers registered for <code>statName</code>.</p>
 <pre class="language-lua"><code class="language-lua"><span class="token keyword">for</span> _<span class="token punctuation">,</span> mod <span class="token keyword">in</span> stats<span class="token punctuation">:</span><span class="token function">GetModifiersForStat</span><span class="token punctuation">(</span><span class="token string">"Damage"</span><span class="token punctuation">)</span> <span class="token keyword">do</span>
     <span class="token function">print</span><span class="token punctuation">(</span>mod<span class="token punctuation">.</span>Id<span class="token punctuation">,</span> mod<span class="token punctuation">.</span>Type<span class="token punctuation">,</span> mod<span class="token punctuation">.</span>Value<span class="token punctuation">)</span>
 <span class="token keyword">end</span>
 </code></pre>
-</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="GetModifiers"><code style="text-decoration:none">GetModifiers</code><a href="#GetModifiers" class="hash-link" aria-label="Direct link to GetModifiers" title="Direct link to GetModifiers">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/Vel136/Quantix/blob/master/docs/Quantix.lua#L443"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>Quantix<!-- -->:</code><code class="green_DgR4">GetModifiers</code><code>(</code><code>) → </code><code class="purple_ieR2">{</code><code class="blue_P4bS">Modifier</code><code class="purple_ieR2">}</code></div><div>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="GetModifiers"><code style="text-decoration:none">GetModifiers</code><a href="#GetModifiers" class="hash-link" aria-label="Direct link to GetModifiers" title="Direct link to GetModifiers">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/Vel136/Quantix/blob/master/docs/Quantix.lua#L508"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>Quantix<!-- -->:</code><code class="green_DgR4">GetModifiers</code><code>(</code><code>) → </code><code class="purple_ieR2">{</code><code class="blue_P4bS">Modifier</code><code class="purple_ieR2">}</code></div><div>
 <p>Returns all active modifiers across all stats.</p>
-</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="GetModifierById"><code style="text-decoration:none">GetModifierById</code><a href="#GetModifierById" class="hash-link" aria-label="Direct link to GetModifierById" title="Direct link to GetModifierById">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/Vel136/Quantix/blob/master/docs/Quantix.lua#L454"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>Quantix<!-- -->:</code><code class="green_DgR4">GetModifierById</code><code>(</code><code>modifierId<!-- -->: </code><code class="blue_P4bS">string</code><code>) → </code><code class="blue_P4bS">Modifier?</code></div><div>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="GetModifierById"><code style="text-decoration:none">GetModifierById</code><a href="#GetModifierById" class="hash-link" aria-label="Direct link to GetModifierById" title="Direct link to GetModifierById">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/Vel136/Quantix/blob/master/docs/Quantix.lua#L519"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>Quantix<!-- -->:</code><code class="green_DgR4">GetModifierById</code><code>(</code><code>modifierId<!-- -->: </code><code class="blue_P4bS">string</code><code>) → </code><code class="blue_P4bS">Modifier?</code></div><div>
 <p>Returns the modifier with the given ID, or <code>nil</code> if it does not exist.</p>
-</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="Trace"><code style="text-decoration:none">Trace</code><a href="#Trace" class="hash-link" aria-label="Direct link to Trace" title="Direct link to Trace">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/Vel136/Quantix/blob/master/docs/Quantix.lua#L480"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>Quantix<!-- -->:</code><code class="green_DgR4">Trace</code><code>(</code><code>statName<!-- -->: </code><code class="blue_P4bS">string</code><code>) → </code><code class="blue_P4bS">string</code></div><div>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="Trace"><code style="text-decoration:none">Trace</code><a href="#Trace" class="hash-link" aria-label="Direct link to Trace" title="Direct link to Trace">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/Vel136/Quantix/blob/master/docs/Quantix.lua#L545"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>Quantix<!-- -->:</code><code class="green_DgR4">Trace</code><code>(</code><code>statName<!-- -->: </code><code class="blue_P4bS">string</code><code>) → </code><code class="blue_P4bS">string</code></div><div>
 <p>
   Returns a formatted multi-line string showing the full evaluation pipeline
   for <code>statName</code>: base value, all active modifiers, per-phase accumulators,
@@ -450,14 +487,14 @@ stats<span class="token punctuation">:</span><span class="token function">EndBat
 <span class="token comment">--   FlatAdd: { sum=10 }</span>
 <span class="token comment">-- = Final: 35</span>
 </code></pre>
-</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="DebugDump"><code style="text-decoration:none">DebugDump</code><a href="#DebugDump" class="hash-link" aria-label="Direct link to DebugDump" title="Direct link to DebugDump">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/Vel136/Quantix/blob/master/docs/Quantix.lua#L493"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>Quantix<!-- -->:</code><code class="green_DgR4">DebugDump</code><code>(</code><code>) → </code><code>(</code><code>)</code></div><div>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="DebugDump"><code style="text-decoration:none">DebugDump</code><a href="#DebugDump" class="hash-link" aria-label="Direct link to DebugDump" title="Direct link to DebugDump">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/Vel136/Quantix/blob/master/docs/Quantix.lua#L558"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>Quantix<!-- -->:</code><code class="green_DgR4">DebugDump</code><code>(</code><code>) → </code><code>(</code><code>)</code></div><div>
 <p>
   Prints a full dump of all registered stats and active modifiers to the
   Roblox console. Useful for in-editor inspection.
 </p>
 <pre class="language-lua"><code class="language-lua">stats<span class="token punctuation">:</span><span class="token function">DebugDump</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
 </code></pre>
-</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="Destroy"><code style="text-decoration:none">Destroy</code><a href="#Destroy" class="hash-link" aria-label="Direct link to Destroy" title="Direct link to Destroy">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/Vel136/Quantix/blob/master/docs/Quantix.lua#L508"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>Quantix<!-- -->:</code><code class="green_DgR4">Destroy</code><code>(</code><code>) → </code><code>(</code><code>)</code></div><div>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="Destroy"><code style="text-decoration:none">Destroy</code><a href="#Destroy" class="hash-link" aria-label="Direct link to Destroy" title="Direct link to Destroy">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/Vel136/Quantix/blob/master/docs/Quantix.lua#L573"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>Quantix<!-- -->:</code><code class="green_DgR4">Destroy</code><code>(</code><code>) → </code><code>(</code><code>)</code></div><div>
 <p>
   Destroys the controller. Disconnects all signals and clears all internal
   state. Always call this when the owning entity (weapon, character) is removed.
@@ -793,6 +830,82 @@ stats<span class="token punctuation">:</span><span class="token function">EndBat
             }
         },
         {
+            &quot;name&quot;: &quot;Block&quot;,
+            &quot;desc&quot;: &quot;Suppresses all modifiers from a source during evaluation without removing\nthem. The modifiers stay indexed and are restored instantly when `Unblock`\nis called. Also suppresses any future modifiers added under the same\nsource/sourceId while the block is active.\n\n`Block(source)` blocks every modifier from that source regardless of\n`SourceId`. `Block(source, sourceId)` blocks only that specific pair.\n\n```lua\n-- Ignore all ammo modifiers while a special state is active\nstats:Block(Quantix.Sources.Ammo)\n\n-- Block a specific attachment\nstats:Block(Quantix.Sources.Attachment, attachment.Id)\n```&quot;,
+            &quot;params&quot;: [
+                {
+                    &quot;name&quot;: &quot;source&quot;,
+                    &quot;desc&quot;: &quot;&quot;,
+                    &quot;lua_type&quot;: &quot;string&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;sourceId&quot;,
+                    &quot;desc&quot;: &quot;&quot;,
+                    &quot;lua_type&quot;: &quot;(string | number)?&quot;
+                }
+            ],
+            &quot;returns&quot;: [],
+            &quot;function_type&quot;: &quot;method&quot;,
+            &quot;source&quot;: {
+                &quot;line&quot;: 441,
+                &quot;path&quot;: &quot;docs/Quantix.lua&quot;
+            }
+        },
+        {
+            &quot;name&quot;: &quot;Unblock&quot;,
+            &quot;desc&quot;: &quot;Lifts a block set by `Block`, restoring the source&#x27;s modifiers to\nevaluation. Returns `true` if a block was actually removed.\n\n```lua\nstats:Unblock(Quantix.Sources.Ammo)\nstats:Unblock(Quantix.Sources.Attachment, attachment.Id)\n```&quot;,
+            &quot;params&quot;: [
+                {
+                    &quot;name&quot;: &quot;source&quot;,
+                    &quot;desc&quot;: &quot;&quot;,
+                    &quot;lua_type&quot;: &quot;string&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;sourceId&quot;,
+                    &quot;desc&quot;: &quot;&quot;,
+                    &quot;lua_type&quot;: &quot;(string | number)?&quot;
+                }
+            ],
+            &quot;returns&quot;: [
+                {
+                    &quot;desc&quot;: &quot;`true` if a block was removed, `false` if none existed.&quot;,
+                    &quot;lua_type&quot;: &quot;boolean&quot;
+                }
+            ],
+            &quot;function_type&quot;: &quot;method&quot;,
+            &quot;source&quot;: {
+                &quot;line&quot;: 459,
+                &quot;path&quot;: &quot;docs/Quantix.lua&quot;
+            }
+        },
+        {
+            &quot;name&quot;: &quot;IsBlocked&quot;,
+            &quot;desc&quot;: &quot;Returns `true` if a source (optionally a specific `SourceId`) is currently\nblocked. A specific `SourceId` also counts as blocked if a broad\n(all-sourceId) block exists for that source.\n\n```lua\nif stats:IsBlocked(Quantix.Sources.Ammo) then\n    -- ammo modifiers are suppressed\nend\n```&quot;,
+            &quot;params&quot;: [
+                {
+                    &quot;name&quot;: &quot;source&quot;,
+                    &quot;desc&quot;: &quot;&quot;,
+                    &quot;lua_type&quot;: &quot;string&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;sourceId&quot;,
+                    &quot;desc&quot;: &quot;&quot;,
+                    &quot;lua_type&quot;: &quot;(string | number)?&quot;
+                }
+            ],
+            &quot;returns&quot;: [
+                {
+                    &quot;desc&quot;: &quot;&quot;,
+                    &quot;lua_type&quot;: &quot;boolean&quot;
+                }
+            ],
+            &quot;function_type&quot;: &quot;method&quot;,
+            &quot;source&quot;: {
+                &quot;line&quot;: 479,
+                &quot;path&quot;: &quot;docs/Quantix.lua&quot;
+            }
+        },
+        {
             &quot;name&quot;: &quot;GetModifiersForStat&quot;,
             &quot;desc&quot;: &quot;Returns all active modifiers registered for `statName`.\n\n```lua\nfor _, mod in stats:GetModifiersForStat(\&quot;Damage\&quot;) do\n    print(mod.Id, mod.Type, mod.Value)\nend\n```&quot;,
             &quot;params&quot;: [
@@ -810,7 +923,7 @@ stats<span class="token punctuation">:</span><span class="token function">EndBat
             ],
             &quot;function_type&quot;: &quot;method&quot;,
             &quot;source&quot;: {
-                &quot;line&quot;: 433,
+                &quot;line&quot;: 498,
                 &quot;path&quot;: &quot;docs/Quantix.lua&quot;
             }
         },
@@ -826,7 +939,7 @@ stats<span class="token punctuation">:</span><span class="token function">EndBat
             ],
             &quot;function_type&quot;: &quot;method&quot;,
             &quot;source&quot;: {
-                &quot;line&quot;: 443,
+                &quot;line&quot;: 508,
                 &quot;path&quot;: &quot;docs/Quantix.lua&quot;
             }
         },
@@ -848,7 +961,7 @@ stats<span class="token punctuation">:</span><span class="token function">EndBat
             ],
             &quot;function_type&quot;: &quot;method&quot;,
             &quot;source&quot;: {
-                &quot;line&quot;: 454,
+                &quot;line&quot;: 519,
                 &quot;path&quot;: &quot;docs/Quantix.lua&quot;
             }
         },
@@ -870,7 +983,7 @@ stats<span class="token punctuation">:</span><span class="token function">EndBat
             ],
             &quot;function_type&quot;: &quot;method&quot;,
             &quot;source&quot;: {
-                &quot;line&quot;: 480,
+                &quot;line&quot;: 545,
                 &quot;path&quot;: &quot;docs/Quantix.lua&quot;
             }
         },
@@ -881,7 +994,7 @@ stats<span class="token punctuation">:</span><span class="token function">EndBat
             &quot;returns&quot;: [],
             &quot;function_type&quot;: &quot;method&quot;,
             &quot;source&quot;: {
-                &quot;line&quot;: 493,
+                &quot;line&quot;: 558,
                 &quot;path&quot;: &quot;docs/Quantix.lua&quot;
             }
         },
@@ -892,7 +1005,7 @@ stats<span class="token punctuation">:</span><span class="token function">EndBat
             &quot;returns&quot;: [],
             &quot;function_type&quot;: &quot;method&quot;,
             &quot;source&quot;: {
-                &quot;line&quot;: 508,
+                &quot;line&quot;: 573,
                 &quot;path&quot;: &quot;docs/Quantix.lua&quot;
             }
         }
@@ -933,6 +1046,6 @@ stats<span class="token punctuation">:</span><span class="token function">EndBat
         &quot;line&quot;: 40,
         &quot;path&quot;: &quot;docs/Quantix.lua&quot;
     }
-}</pre></details></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#properties" class="table-of-contents__link toc-highlight">Properties</a><ul><li><a href="#Signals" class="table-of-contents__link toc-highlight">Signals</a></li><li><a href="#Sources" class="table-of-contents__link toc-highlight">Sources</a></li><li><a href="#Types" class="table-of-contents__link toc-highlight">Types</a></li></ul></li><li><a href="#functions" class="table-of-contents__link toc-highlight">Functions</a><ul><li><a href="#AddModifier" class="table-of-contents__link toc-highlight">:AddModifier</a></li><li><a href="#Batch" class="table-of-contents__link toc-highlight">:Batch</a></li><li><a href="#BeginBatch" class="table-of-contents__link toc-highlight">:BeginBatch</a></li><li><a href="#ClearAll" class="table-of-contents__link toc-highlight">:ClearAll</a></li><li><a href="#DebugDump" class="table-of-contents__link toc-highlight">:DebugDump</a></li><li><a href="#Destroy" class="table-of-contents__link toc-highlight">:Destroy</a></li><li><a href="#EndBatch" class="table-of-contents__link toc-highlight">:EndBatch</a></li><li><a href="#Evaluate" class="table-of-contents__link toc-highlight">:Evaluate</a></li><li><a href="#Get" class="table-of-contents__link toc-highlight">:Get</a></li><li><a href="#GetAll" class="table-of-contents__link toc-highlight">:GetAll</a></li><li><a href="#GetBase" class="table-of-contents__link toc-highlight">:GetBase</a></li><li><a href="#GetGroup" class="table-of-contents__link toc-highlight">:GetGroup</a></li><li><a href="#GetModifierById" class="table-of-contents__link toc-highlight">:GetModifierById</a></li><li><a href="#GetModifiers" class="table-of-contents__link toc-highlight">:GetModifiers</a></li><li><a href="#GetModifiersForStat" class="table-of-contents__link toc-highlight">:GetModifiersForStat</a></li><li><a href="#RegisterBehavior" class="table-of-contents__link toc-highlight">:RegisterBehavior</a></li><li><a href="#RemoveBySource" class="table-of-contents__link toc-highlight">:RemoveBySource</a></li><li><a href="#RemoveModifier" class="table-of-contents__link toc-highlight">:RemoveModifier</a></li><li><a href="#ReplaceBySource" class="table-of-contents__link toc-highlight">:ReplaceBySource</a></li><li><a href="#SetBase" class="table-of-contents__link toc-highlight">:SetBase</a></li><li><a href="#Trace" class="table-of-contents__link toc-highlight">:Trace</a></li><li><a href="#new" class="table-of-contents__link toc-highlight">.new</a></li></ul></li></ul></div></div></div></div></main></div></div><footer class="footer footer--dark"><div class="container container-fluid"><div class="row footer__links"><div class="col footer__col"><div class="footer__title">Community</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://discord.gg/XMYMRKcd3g" target="_blank" rel="noopener noreferrer" class="footer__link-item">Discord Server<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPIU"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a></li><li class="footer__item"><a href="https://discord.com/users/897026279243669504" target="_blank" rel="noopener noreferrer" class="footer__link-item">Discord (Direct)<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPIU"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a></li></ul></div><div class="col footer__col"><div class="footer__title">Social</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://www.instagram.com/vedevelopment/" target="_blank" rel="noopener noreferrer" class="footer__link-item">Instagram<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPIU"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a></li><li class="footer__item"><a href="https://x.com/vedevelopment_" target="_blank" rel="noopener noreferrer" class="footer__link-item">X (Twitter)<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPIU"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a></li><li class="footer__item"><a href="https://www.tiktok.com/@vedevelopment" target="_blank" rel="noopener noreferrer" class="footer__link-item">TikTok<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPIU"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a></li></ul></div></div><div class="footer__bottom text--center"><div class="footer__copyright">Copyright © 2026 VeDevelopment</div></div></div></footer></div>
+}</pre></details></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#properties" class="table-of-contents__link toc-highlight">Properties</a><ul><li><a href="#Signals" class="table-of-contents__link toc-highlight">Signals</a></li><li><a href="#Sources" class="table-of-contents__link toc-highlight">Sources</a></li><li><a href="#Types" class="table-of-contents__link toc-highlight">Types</a></li></ul></li><li><a href="#functions" class="table-of-contents__link toc-highlight">Functions</a><ul><li><a href="#AddModifier" class="table-of-contents__link toc-highlight">:AddModifier</a></li><li><a href="#Batch" class="table-of-contents__link toc-highlight">:Batch</a></li><li><a href="#BeginBatch" class="table-of-contents__link toc-highlight">:BeginBatch</a></li><li><a href="#Block" class="table-of-contents__link toc-highlight">:Block</a></li><li><a href="#ClearAll" class="table-of-contents__link toc-highlight">:ClearAll</a></li><li><a href="#DebugDump" class="table-of-contents__link toc-highlight">:DebugDump</a></li><li><a href="#Destroy" class="table-of-contents__link toc-highlight">:Destroy</a></li><li><a href="#EndBatch" class="table-of-contents__link toc-highlight">:EndBatch</a></li><li><a href="#Evaluate" class="table-of-contents__link toc-highlight">:Evaluate</a></li><li><a href="#Get" class="table-of-contents__link toc-highlight">:Get</a></li><li><a href="#GetAll" class="table-of-contents__link toc-highlight">:GetAll</a></li><li><a href="#GetBase" class="table-of-contents__link toc-highlight">:GetBase</a></li><li><a href="#GetGroup" class="table-of-contents__link toc-highlight">:GetGroup</a></li><li><a href="#GetModifierById" class="table-of-contents__link toc-highlight">:GetModifierById</a></li><li><a href="#GetModifiers" class="table-of-contents__link toc-highlight">:GetModifiers</a></li><li><a href="#GetModifiersForStat" class="table-of-contents__link toc-highlight">:GetModifiersForStat</a></li><li><a href="#IsBlocked" class="table-of-contents__link toc-highlight">:IsBlocked</a></li><li><a href="#RegisterBehavior" class="table-of-contents__link toc-highlight">:RegisterBehavior</a></li><li><a href="#RemoveBySource" class="table-of-contents__link toc-highlight">:RemoveBySource</a></li><li><a href="#RemoveModifier" class="table-of-contents__link toc-highlight">:RemoveModifier</a></li><li><a href="#ReplaceBySource" class="table-of-contents__link toc-highlight">:ReplaceBySource</a></li><li><a href="#SetBase" class="table-of-contents__link toc-highlight">:SetBase</a></li><li><a href="#Trace" class="table-of-contents__link toc-highlight">:Trace</a></li><li><a href="#Unblock" class="table-of-contents__link toc-highlight">:Unblock</a></li><li><a href="#new" class="table-of-contents__link toc-highlight">.new</a></li></ul></li></ul></div></div></div></div></main></div></div><footer class="footer footer--dark"><div class="container container-fluid"><div class="row footer__links"><div class="col footer__col"><div class="footer__title">Community</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://discord.gg/XMYMRKcd3g" target="_blank" rel="noopener noreferrer" class="footer__link-item">Discord Server<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPIU"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a></li><li class="footer__item"><a href="https://discord.com/users/897026279243669504" target="_blank" rel="noopener noreferrer" class="footer__link-item">Discord (Direct)<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPIU"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a></li></ul></div><div class="col footer__col"><div class="footer__title">Social</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://www.instagram.com/vedevelopment/" target="_blank" rel="noopener noreferrer" class="footer__link-item">Instagram<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPIU"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a></li><li class="footer__item"><a href="https://x.com/vedevelopment_" target="_blank" rel="noopener noreferrer" class="footer__link-item">X (Twitter)<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPIU"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a></li><li class="footer__item"><a href="https://www.tiktok.com/@vedevelopment" target="_blank" rel="noopener noreferrer" class="footer__link-item">TikTok<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPIU"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a></li></ul></div></div><div class="footer__bottom text--center"><div class="footer__copyright">Copyright © 2026 VeDevelopment</div></div></div></footer></div>
 </body>
 </html>
